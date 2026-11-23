@@ -21,17 +21,19 @@ El stack es fijo y NO DEBE ampliarse sin enmendar esta constitución:
 
 - **Frontend / UI:** React con Vite. Estilos con Tailwind CSS.
 - **Navegación:** React Router.
-- **Consumo de la API:** `fetch` nativo hacia el endpoint GraphQL mock (`/graphql`). El código
-  de la app (páginas, componentes y `lib/`) NO DEBE usar Apollo Client ni otra librería GraphQL;
-  la única excepción es el módulo del mock (`client/src/mocks/`).
+- **Consumo de la API:** `fetch` nativo hacia los endpoints mock: REST para el listado de
+  destinos (`GET /api/destinos`) y GraphQL (`/graphql`) para el detalle de cada destino y las
+  reservas. El código de la app (páginas, componentes y `lib/`) NO DEBE usar Apollo Client ni otra
+  librería GraphQL o HTTP; la única excepción es el módulo del mock (`client/src/mocks/`).
 - **Manejo de estado:** `useState` y `useEffect`, con actualización fluida de la interfaz. NO
   DEBEN usarse librerías de estado global.
-- **Backend:** API GraphQL mock que corre en el navegador: Mock Service Worker (`msw`) intercepta
-  `/graphql` y responde con `graphql` + `@graphql-tools/mock`. Expone destinos (con país y
-  actividades populares), vuelos, hoteles, tours y reservas. NO hay servidor Node.
+- **Backend:** API mock que corre en el navegador: Mock Service Worker (`msw`) simula el endpoint
+  REST y el endpoint GraphQL, este último con `graphql` + `@graphql-tools/mock`. Expone destinos
+  (con país y actividades populares), vuelos, hoteles, tours y reservas. NO hay servidor Node.
 - **Base de datos:** ninguna. Se usa `createMockStore` en memoria; las reservas se respaldan en
   el `localStorage` del navegador.
-- **Publicación:** sitio estático en GitHub Pages (rama `gh-pages`).
+- **Publicación:** sitio estático en GitHub Pages, servido desde la rama `gh-pages`. Un workflow
+  de GitHub Actions compila la app y sube el resultado a esa rama.
 - **Lenguaje:** JavaScript (sin TypeScript), HTML y CSS con Tailwind.
 - **Pruebas:** Vitest + Testing Library, solo en el cliente y solo para la lógica clave: cálculo
   del total de la reserva y validaciones. NO DEBEN probarse el mock ni flujos de extremo a extremo.
@@ -53,7 +55,8 @@ cambio exige enmendar esta constitución.
   manteniendo un estilo visualmente limpio y de fácil lectura.
 - Los identificadores (tipos, campos, funciones y componentes) DEBEN estar en español, por
   ejemplo `Destino`, `crearReserva`, `TarjetaVuelo`. Se exceptúan los nombres propios de React
-  y de las librerías (`useState`, `props`, etc.).
+  y de las librerías (`useState`, `props`, etc.) y los nombres que siguen la convención de una
+  librería, como `mocks/browser.js`, `mocks/handlers.js`, `worker` y `handlers` de MSW.
 - El código DEBE organizarse en componentes reutilizables, con estructura clara y modular.
 
 **Razón:** coherencia lingüística con el dominio y legibilidad para fines académicos.
@@ -104,6 +107,10 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
 - Una reserva pertenece a un único destino y agrupa un vuelo, un hotel y/o tours. Todos los
   ítems son opcionales, pero DEBE haber al menos uno.
 - Una reserva incluye el número de pasajeros y las fechas de salida y regreso.
+- **Fechas y disponibilidad (informativas):** cada vuelo tiene fechas de ida y vuelta y cupos;
+  cada hotel tiene un rango de fechas y habitaciones disponibles. Son solo informativas: NO se
+  descuentan al reservar ni impiden una reserva. Al elegir un vuelo, las fechas de la reserva se
+  rellenan con las del vuelo y el usuario puede editarlas.
 - **Precio:** el total es la suma de los precios de sus ítems y se recalcula al modificarla. La
   regla exacta de cálculo (por ejemplo, si el precio se multiplica por pasajero) se define en
   `spec.md`.
@@ -142,7 +149,8 @@ proyecto/
 │       ├── pages/
 │       ├── graphql/          # queries y mutations como texto (destinos.js)
 │       ├── lib/api.js        # función de apoyo con fetch hacia /graphql
-│       └── mocks/            # API GraphQL mock en el navegador (MSW + createMockStore)
+│       └── mocks/            # API mock REST + GraphQL en el navegador (MSW + createMockStore)
+├── .github/workflows/        # Actions: compila y sube el sitio a la rama gh-pages
 └── (sin server/)             # GitHub Pages solo sirve archivos estáticos
 ```
 
@@ -175,4 +183,4 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 - **Revisión de cumplimiento:** cada fase del flujo SDD (spec, plan, tasks, implementación) DEBE
   verificar el cumplimiento de esta constitución antes de aprobarse.
 
-**Version**: 2.0.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
+**Version**: 2.1.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
