@@ -1,25 +1,31 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { consultar } from '../lib/api.js'
 import { DESTINO } from '../graphql/destinos.js'
-import TarjetaVuelo from '../components/TarjetaVuelo.jsx'
-import TarjetaHotel from '../components/TarjetaHotel.jsx'
-import TarjetaTour from '../components/TarjetaTour.jsx'
+import { CREAR_RESERVA } from '../graphql/reservas.js'
+import SelectorServicios from '../components/SelectorServicios.jsx'
+import FormularioReserva from '../components/FormularioReserva.jsx'
 import MensajeError from '../components/MensajeError.jsx'
 
-// Sección con título y grilla de tarjetas
-const Seccion = ({ titulo, children }) => (
-  <section className="mt-6">
-    <h2 className="mb-3 text-xl font-semibold">{titulo}</h2>
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
-  </section>
-)
+const seleccionVacia = {
+  vueloId: null,
+  hotelId: null,
+  tourIds: [],
+  pasajeros: 1,
+  fechaSalida: '',
+  fechaRegreso: '',
+}
 
-// Detalle público de un destino con sus vuelos, hoteles y tours
-export default function PaginaDestino() {
+// Detalle público de un destino y armado de la reserva (confirmar exige sesión)
+export default function PaginaDestino({ usuario }) {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [estado, setEstado] = useState({ cargando: true, error: null, destino: null })
   const [intento, setIntento] = useState(0)
+  // Si vuelve del login, recupera la selección que traía
+  const [seleccion, setSeleccion] = useState(location.state?.seleccion ?? seleccionVacia)
+  const [errorEnvio, setErrorEnvio] = useState(null)
 
   useEffect(() => {
     setEstado((previo) => ({ ...previo, cargando: true, error: null }))
@@ -27,6 +33,22 @@ export default function PaginaDestino() {
       .then(({ destino }) => setEstado({ cargando: false, error: null, destino }))
       .catch((error) => setEstado({ cargando: false, error: error.message, destino: null }))
   }, [id, intento])
+
+  // Sin sesión: al login con la selección; con sesión: crea la reserva
+  const confirmar = async ({ total, ...datos }) => {
+    if (!usuario) {
+      return navigate('/login', { state: { desde: location.pathname, seleccion: datos } })
+    }
+    try {
+      setErrorEnvio(null)
+      await consultar(CREAR_RESERVA, {
+        datos: { usuarioId: usuario.id, destinoId: id, ...datos, total },
+      })
+      navigate('/reservas')
+    } catch (e) {
+      setErrorEnvio(e.message)
+    }
+  }
 
   if (estado.cargando) return <p>Cargando destino…</p>
   if (estado.error) {
@@ -51,15 +73,15 @@ export default function PaginaDestino() {
         </div>
       </header>
 
-      <Seccion titulo="Vuelos">
-        {destino.vuelos.map((v) => <TarjetaVuelo key={v.id} vuelo={v} />)}
-      </Seccion>
-      <Seccion titulo="Hoteles">
-        {destino.hoteles.map((h) => <TarjetaHotel key={h.id} hotel={h} />)}
-      </Seccion>
-      <Seccion titulo="Tours">
-        {destino.tours.map((t) => <TarjetaTour key={t.id} tour={t} />)}
-      </Seccion>
+      <SelectorServicios destino={destino} seleccion={seleccion} alCambiar={setSeleccion} />
+      <FormularioReserva
+        destino={destino}
+        seleccion={seleccion}
+        alCambiar={setSeleccion}
+        alConfirmar={confirmar}
+        textoBoton="Confirmar reserva"
+      />
+      {errorEnvio && <MensajeError mensaje={errorEnvio} />}
     </article>
   )
 }

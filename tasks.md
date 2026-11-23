@@ -174,13 +174,13 @@ Dependencies.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T024 [P] [US2] Crear `client/src/lib/calculos.test.js` (Vitest) con estos casos:
+- [X] T024 [P] [US2] Crear `client/src/lib/calculos.test.js` (Vitest) con estos casos:
   - `calcularNoches('2026-12-01', '2026-12-04') === 3`.
   - `calcularTotal` con vuelo, hotel y 2 tours, 2 pasajeros y 3 noches: vuelo×2 + hotel×3 +
     (tour1 + tour2)×2.
   - Sin vuelo, sin hotel y sin tours: cada ítem ausente suma 0.
   - Con 1 y con 4 pasajeros, comprobando que el hotel no se multiplica por pasajeros.
-- [ ] T025 [P] [US2] Crear `client/src/lib/validaciones.test.js` (Vitest) con estos casos:
+- [X] T025 [P] [US2] Crear `client/src/lib/validaciones.test.js` (Vitest) con estos casos:
   - Una reserva sin vuelo, sin hotel y con `tourIds` vacío devuelve "Selecciona al menos un
     servicio para crear la reserva".
   - `pasajeros` 0 devuelve "Indica al menos 1 pasajero".
@@ -188,19 +188,19 @@ Dependencies.
   - Con regreso igual y con regreso anterior a la salida devuelve "La fecha de regreso debe ser
     posterior a la de salida".
   - Una reserva válida devuelve `[]`.
-- [ ] T026 [P] [US2] Crear `client/src/components/FormularioReserva.test.jsx` (Testing Library).
+- [X] T026 [P] [US2] Crear `client/src/components/FormularioReserva.test.jsx` (Testing Library).
   - Renderiza `FormularioReserva` con una selección sin servicios y hace clic en confirmar.
   - Verifica que aparece "Selecciona al menos un servicio para crear la reserva" y que
     `alConfirmar` no se llamó.
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Crear `client/src/lib/calculos.js`:
+- [X] T027 [P] [US2] Crear `client/src/lib/calculos.js`:
   - `calcularNoches(fechaSalida, fechaRegreso)`: días entre las dos fechas, usando `Date.UTC` (R7).
   - `calcularTotal({ vuelo, hotel, tours, pasajeros, noches })`, con la fórmula
     `(vuelo?.precio ?? 0) × pasajeros + (hotel?.precioNoche ?? 0) × noches + Σ tour.precio × pasajeros`.
   - Solo funciones puras.
-- [ ] T028 [P] [US2] Crear `client/src/lib/validaciones.js` con
+- [X] T028 [P] [US2] Crear `client/src/lib/validaciones.js` con
   `validarReserva({ vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso })`. Devuelve
   un arreglo de mensajes, vacío si la reserva es válida, con estas reglas en este orden:
   1. "`vuelo` o `hotel` o `tours.length > 0`" → "Selecciona al menos un servicio para crear la
@@ -208,9 +208,9 @@ Dependencies.
   2. "`pasajeros >= 1` (entero)" → "Indica al menos 1 pasajero".
   3. "`fechaSalida` y `fechaRegreso` informadas" → "Indica las fechas de salida y regreso".
   4. "`fechaRegreso > fechaSalida`" → "La fecha de regreso debe ser posterior a la de salida".
-- [ ] T029 [P] [US2] Crear `client/src/graphql/sesion.js`, que exporta `LOGIN`: mutation
+- [X] T029 [P] [US2] Crear `client/src/graphql/sesion.js`, que exporta `LOGIN`: mutation
   `login(correo: $correo, contrasena: $contrasena) { id nombre correo }`.
-- [ ] T030 [US2] En `server/src/mocks.js`, agregar:
+- [X] T030 [US2] En `server/src/mocks.js`, agregar:
   - `Mutation.login`: devuelve `{ id, nombre, correo }` de `usuarioMock` si el correo y la
     contraseña coinciden; si no, `null`.
   - `Mutation.crearReserva(datos)`:
@@ -218,37 +218,37 @@ Dependencies.
       pertenezcan al destino; si no, lanza `GraphQLError`.
     - Genera `id = crypto.randomUUID()` y ejecuta `store.set('Reserva', id, { id, usuarioId, destino: store.get('Destino', destinoId), vuelo: vueloId ? store.get('Vuelo', vueloId) : null, hotel: …, tours: tourIds.map(…), pasajeros, fechaSalida, fechaRegreso, total })`.
     - Agrega `store.get('Reserva', id)` a `Query.ROOT.reservas` y la devuelve (R4).
-- [ ] T031 [US2] Crear `client/src/graphql/reservas.js` con la mutation `CREAR_RESERVA`:
+- [X] T031 [US2] Crear `client/src/graphql/reservas.js` con la mutation `CREAR_RESERVA`:
   `crearReserva(datos: $datos) { id }`.
-- [ ] T032 [US2] Crear `client/src/pages/PaginaLogin.jsx`:
+- [X] T032 [US2] Crear `client/src/pages/PaginaLogin.jsx`:
   - Formulario con correo y contraseña que llama a `consultar(LOGIN)`.
   - Si `login` es `null`, muestra "Correo o contraseña incorrectos.".
   - Si hay error, muestra el mensaje de `consultar`.
   - Si funciona, llama a la prop `alIniciarSesion(usuario)` y navega a `location.state?.desde ?? '/'`,
     pasando `{ seleccion: location.state?.seleccion }` como `state` (FR-007, FR-016).
-- [ ] T033 [US2] En `client/src/components/BarraNavegacion.jsx`:
+- [X] T033 [US2] En `client/src/components/BarraNavegacion.jsx`:
   - Agregar las props `usuario` y `alCerrarSesion`.
   - Con sesión, muestra `usuario.nombre`, un enlace "Mis reservas" y el botón "Cerrar sesión".
   - Sin sesión, muestra un enlace "Iniciar sesión".
-- [ ] T034 [US2] En `client/src/App.jsx`:
+- [X] T034 [US2] En `client/src/App.jsx`:
   - Definir `cerrarSesion`, que pone `usuario` en `null` y navega a `/` (FR-005).
   - Pasar `usuario` y `cerrarSesion` a `BarraNavegacion`.
   - Agregar la ruta `/login` → `PaginaLogin alIniciarSesion={setUsuario}`.
   - Pasar `usuario` a `PaginaDestino`.
-- [ ] T035 [US2] Crear `client/src/components/SelectorServicios.jsx`:
+- [X] T035 [US2] Crear `client/src/components/SelectorServicios.jsx`:
   - Props: `destino`, `seleccion` y `alCambiar`.
   - Renderiza las tarjetas de T018–T020 en modo seleccionable:
     - vuelo: uno como máximo; un clic en el seleccionado lo quita;
     - hotel: uno como máximo; mismo comportamiento;
     - tours: alterna la presencia del tour en `tourIds`.
   - Llama a `alCambiar` con la nueva selección, sin mutarla.
-- [ ] T036 [US2] Crear `client/src/components/FormularioReserva.jsx`:
+- [X] T036 [US2] Crear `client/src/components/FormularioReserva.jsx`:
   - Props: `destino`, `seleccion`, `alCambiar`, `alConfirmar` y `textoBoton`.
   - Campos: pasajeros (número, mínimo 1), fecha de salida y fecha de regreso (inputs `date`, ISO).
   - Muestra el total en vivo con `formatearCLP(calcularTotal(...))` (FR-014).
   - Al confirmar, ejecuta `validarReserva`. Si hay errores, los muestra y no llama a
     `alConfirmar`. Si no, llama a `alConfirmar({ ...seleccion, total })`.
-- [ ] T037 [US2] En `client/src/pages/PaginaDestino.jsx`:
+- [X] T037 [US2] En `client/src/pages/PaginaDestino.jsx`:
   - Estado `seleccion` con valor inicial
     `location.state?.seleccion ?? { vueloId: null, hotelId: null, tourIds: [], pasajeros: 1, fechaSalida: '', fechaRegreso: '' }`.
   - Renderizar `SelectorServicios` y `FormularioReserva` (`textoBoton` "Confirmar reserva").

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+import { GraphQLError } from 'graphql'
 import { createMockStore } from '@graphql-tools/mock'
 
 // Usuario fijo del login simulado; la contraseña nunca se expone en el esquema
@@ -182,10 +184,56 @@ export const crearStore = (schema) => {
   return store
 }
 
+// Claves de una lista de referencias del store
+const claves = (refs) => refs.map((ref) => ref.$ref.key)
+
+// Verifica que vuelo, hotel y tours existan y pertenezcan al destino; si no, lanza error
+const validarOpciones = (store, destinoId, { vueloId, hotelId, tourIds }) => {
+  const pertenece = (campo, id) => claves(store.get('Destino', destinoId, campo)).includes(id)
+  const validas =
+    (!vueloId || pertenece('vuelos', vueloId)) &&
+    (!hotelId || pertenece('hoteles', hotelId)) &&
+    tourIds.every((id) => pertenece('tours', id))
+  if (!validas) throw new GraphQLError('Opciones no válidas para el destino')
+}
+
+// Campos editables de una reserva, como referencias del store
+const camposEditables = (store, { vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso, total }) => ({
+  vuelo: vueloId ? store.get('Vuelo', vueloId) : null,
+  hotel: hotelId ? store.get('Hotel', hotelId) : null,
+  tours: tourIds.map((id) => store.get('Tour', id)),
+  pasajeros,
+  fechaSalida,
+  fechaRegreso,
+  total,
+})
+
 // Resolvers que leen y escriben en el store; se usa has() porque get() inventa datos
 export const crearResolvers = (store) => ({
   Query: {
     destinos: () => store.get('Query', 'ROOT', 'destinos'),
     destino: (_, { id }) => (store.has('Destino', id) ? store.get('Destino', id) : null),
+  },
+  Mutation: {
+    // Devuelve el usuario sin la contraseña, o null si las credenciales no coinciden
+    login: (_, { correo, contrasena }) => {
+      const { contrasena: clave, ...usuario } = usuarioMock
+      return correo === usuarioMock.correo && contrasena === clave ? usuario : null
+    },
+    crearReserva: (_, { datos }) => {
+      if (!store.has('Destino', datos.destinoId)) throw new GraphQLError('Destino inexistente')
+      validarOpciones(store, datos.destinoId, datos)
+
+      const id = randomUUID()
+      store.set('Reserva', id, {
+        id,
+        usuarioId: datos.usuarioId,
+        destino: store.get('Destino', datos.destinoId),
+        ...camposEditables(store, datos),
+      })
+      const reserva = store.get('Reserva', id)
+      store.set('Query', 'ROOT', 'reservas', [...store.get('Query', 'ROOT', 'reservas'), reserva])
+      return reserva
+    },
   },
 })
