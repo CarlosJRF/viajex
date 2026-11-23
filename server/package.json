@@ -1,0 +1,15 @@
+{
+  "name": "viajex-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@apollo/server": "^5",
+    "@graphql-tools/mock": "^9",
+    "@graphql-tools/schema": "^10",
+    "graphql": "^16"
+  }
+}

@@ -34,28 +34,28 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Crear `package.json` en la raíz (`"private": true`) con devDependency `concurrently@^9`
+- [X] T001 Crear `package.json` en la raíz (`"private": true`) con devDependency `concurrently@^9`
   y los scripts `"dev": "concurrently -n server,client \"npm run dev --prefix server\" \"npm run dev --prefix client\""`
   y `"test": "npm test --prefix client"`. Crear `.gitignore` en la raíz con `node_modules/` y
   `dist/`.
-- [ ] T002 [P] Crear `server/package.json` con `"type": "module"`, scripts
+- [X] T002 [P] Crear `server/package.json` con `"type": "module"`, scripts
   `"dev": "node --watch src/index.js"` y `"start": "node src/index.js"`, y dependencies
   `@apollo/server@^5`, `@graphql-tools/mock@^9`, `@graphql-tools/schema@^10`, `graphql@^16`.
-- [ ] T003 [P] Crear `client/package.json` con `"type": "module"` y scripts `"dev": "vite"`,
+- [X] T003 [P] Crear `client/package.json` con `"type": "module"` y scripts `"dev": "vite"`,
   `"build": "vite build"` y `"test": "vitest run"`.
   - dependencies: `react@^19`, `react-dom@^19`, `react-router@^7`.
   - devDependencies: `vite@^7`, `@vitejs/plugin-react`, `tailwindcss@^4`, `@tailwindcss/vite@^4`,
     `vitest@^3`, `@testing-library/react@^16`, `@testing-library/dom` (peer obligatorio de la
     anterior) y `jsdom`.
-- [ ] T004 Crear `client/vite.config.js` con:
+- [X] T004 Crear `client/vite.config.js` con:
   - plugins `react()` y `tailwindcss()`;
   - `server.proxy: { '/graphql': 'http://localhost:4000' }`;
   - `test: { environment: 'jsdom' }`.
-- [ ] T005 [P] Crear `client/index.html` (`lang="es"`, título "Viajex", `<div id="root">`, script
+- [X] T005 [P] Crear `client/index.html` (`lang="es"`, título "Viajex", `<div id="root">`, script
   `/src/main.jsx`), `client/src/index.css` (solo `@import "tailwindcss";`) y
   `client/src/main.jsx` (monta `<App />` dentro de `<BrowserRouter>` de `react-router` e importa
   `./index.css`).
-- [ ] T006 Ejecutar `npm install` en la raíz, en `server/` y en `client/`, y verificar que
+- [X] T006 Ejecutar `npm install` en la raíz, en `server/` y en `client/`, y verificar que
   terminen sin errores.
 
 ---
@@ -66,9 +66,9 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Crear `server/src/schema.js`, que exporta `typeDefs`: un template string con el
+- [X] T007 [P] Crear `server/src/schema.js`, que exporta `typeDefs`: un template string con el
   contenido íntegro de `contracts/schema.graphql`, sin agregar ni quitar tipos ni campos.
-- [ ] T008 [P] Crear `server/src/mocks.js` con los datos fijos (research R3, R11) y el store:
+- [X] T008 [P] Crear `server/src/mocks.js` con los datos fijos (research R3, R11) y el store:
   - **Usuario**: exportar `usuarioMock = { id: 'u1', nombre: 'Usuario Demo', correo: 'demo@viajes.cl', contrasena: 'demo1234' }`.
   - **Catálogo**: un arreglo `catalogo` con 5 destinos de países distintos: Cusco (Perú), Cancún
     (México), Buenos Aires (Argentina), Madrid (España) y Río de Janeiro (Brasil).
@@ -84,32 +84,32 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
   - **Store**: exportar `crearStore(schema)`, que llama a `createMockStore({ schema })`, ejecuta
     `store.set('Query', 'ROOT', 'destinos', catalogo)` y
     `store.set('Query', 'ROOT', 'reservas', [])`, y devuelve el store.
-- [ ] T009 En `server/src/mocks.js`, exportar también `crearResolvers(store)`:
+- [X] T009 En `server/src/mocks.js`, exportar también `crearResolvers(store)`:
   - `Query.destinos`: devuelve `store.get('Query', 'ROOT', 'destinos')`.
   - `Query.destino(id)`: devuelve `null` si `!store.has('Destino', id)`; si existe, devuelve
     `store.get('Destino', id)`.
   - Usar siempre `store.has` antes de `store.get` con ids recibidos, porque `get` crea mocks
     aleatorios si la clave no existe.
-- [ ] T010 Crear `server/src/index.js`:
+- [X] T010 Crear `server/src/index.js`:
   - `makeExecutableSchema({ typeDefs })`, luego `crearStore(schema)` y
     `addMocksToSchema({ schema, store, resolvers: crearResolvers(store) })`.
   - `new ApolloServer({ schema })` y `startStandaloneServer(servidor, { listen: { port: 4000 } })`.
   - Registrar la URL en consola.
-- [ ] T011 [P] Crear `client/src/lib/api.js`, que exporta `consultar(query, variables = {})`:
+- [X] T011 [P] Crear `client/src/lib/api.js`, que exporta `consultar(query, variables = {})`:
   - Hace `fetch('/graphql', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })`
     y devuelve `data`.
   - Ante un fallo de red o una respuesta no OK, lanza `Error('No pudimos conectar con el servidor. Inténtalo nuevamente.')`.
   - Ante `errors` de GraphQL, lanza `Error('Ocurrió un problema al procesar tu solicitud.')`.
   - Nunca propaga texto técnico (FR-024).
-- [ ] T012 [P] Crear `client/src/lib/formatos.js`:
+- [X] T012 [P] Crear `client/src/lib/formatos.js`:
   - `formatearCLP(monto)` con `Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' })`
     (ejemplo `$1.250.000`).
   - `formatearFecha('AAAA-MM-DD')` → `'dd/mm/aaaa'`, partiendo el texto sin usar `Date` (R7).
-- [ ] T013 [P] Crear `client/src/components/MensajeError.jsx` con props `mensaje`, `alReintentar`
+- [X] T013 [P] Crear `client/src/components/MensajeError.jsx` con props `mensaje`, `alReintentar`
   (opcional: si existe, muestra el botón "Reintentar") y `children` (enlaces opcionales).
-- [ ] T014 [P] Crear `client/src/components/BarraNavegacion.jsx` con un enlace "Viajex" a `/`.
+- [X] T014 [P] Crear `client/src/components/BarraNavegacion.jsx` con un enlace "Viajex" a `/`.
   US2 le agrega la sesión.
-- [ ] T015 Crear `client/src/App.jsx`:
+- [X] T015 Crear `client/src/App.jsx`:
   - `const [usuario, setUsuario] = useState(null)`.
   - Renderiza `<BarraNavegacion />` y un `<Routes>` vacío, dentro de un contenedor Tailwind
     centrado. Las rutas se agregan en cada historia.
