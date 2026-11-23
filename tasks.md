@@ -129,32 +129,32 @@ vuelos, hoteles y tours (quickstart 1–4).
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Crear `client/src/graphql/destinos.js`, que exporta:
+- [X] T016 [P] [US1] Crear `client/src/graphql/destinos.js`, que exporta:
   - `DESTINOS`: consulta `destinos { id nombre imagen pais { nombre } actividadesPopulares { id nombre } }`.
   - `DESTINO`: consulta `destino(id: $id)` con `id nombre imagen pais { nombre }`, `vuelos`,
     `hoteles` y `tours { id nombre precio actividades { id nombre } }`, con todos sus campos.
-- [ ] T017 [P] [US1] Crear `client/src/components/TarjetaDestino.jsx`. Muestra imagen, nombre,
+- [X] T017 [P] [US1] Crear `client/src/components/TarjetaDestino.jsx`. Muestra imagen, nombre,
   país y actividades populares, y enlaza a `/destinos/:id` con `Link`.
-- [ ] T018 [P] [US1] Crear `client/src/components/TarjetaVuelo.jsx`. Muestra aerolínea, horarios
+- [X] T018 [P] [US1] Crear `client/src/components/TarjetaVuelo.jsx`. Muestra aerolínea, horarios
   de ida y vuelta y `formatearCLP(precio)` + " por pasajero". Props opcionales `seleccionado`
   y `alAlternar`: si existe `alAlternar`, la tarjeta es clicable y resalta cuando está
   seleccionada.
-- [ ] T019 [P] [US1] Crear `client/src/components/TarjetaHotel.jsx`. Muestra nombre, `categoria`
+- [X] T019 [P] [US1] Crear `client/src/components/TarjetaHotel.jsx`. Muestra nombre, `categoria`
   como estrellas y `formatearCLP(precioNoche)` + " por noche". Mismas props opcionales que T018.
-- [ ] T020 [P] [US1] Crear `client/src/components/TarjetaTour.jsx`. Muestra nombre, lista de
+- [X] T020 [P] [US1] Crear `client/src/components/TarjetaTour.jsx`. Muestra nombre, lista de
   actividades y `formatearCLP(precio)` + " por persona". Mismas props opcionales que T018.
-- [ ] T021 [US1] Crear `client/src/pages/PaginaInicio.jsx`:
+- [X] T021 [US1] Crear `client/src/pages/PaginaInicio.jsx`:
   - `useEffect` + `consultar(DESTINOS)`, con estados `cargando`, `error` y `destinos`.
   - Muestra una grilla de `TarjetaDestino` en el orden del catálogo.
   - Si falla, muestra `MensajeError` con `alReintentar`, que repite la carga (FR-012).
-- [ ] T022 [US1] Crear `client/src/pages/PaginaDestino.jsx`:
+- [X] T022 [US1] Crear `client/src/pages/PaginaDestino.jsx`:
   - Lee `id` con `useParams` y consulta `DESTINO`.
   - Muestra el encabezado (imagen, nombre, país) y tres secciones: "Vuelos", "Hoteles" y "Tours",
     con sus tarjetas.
   - Si `destino` es `null`, muestra `MensajeError` "No encontramos ese destino." con un enlace a
     `/` (FR-011).
   - Si la carga falla, muestra `MensajeError` con reintentar.
-- [ ] T023 [US1] En `client/src/App.jsx`, agregar las rutas `/` → `PaginaInicio` y
+- [X] T023 [US1] En `client/src/App.jsx`, agregar las rutas `/` → `PaginaInicio` y
   `/destinos/:id` → `PaginaDestino`.
 
 **Checkpoint**: quickstart 1–4 pasan sin sesión.
