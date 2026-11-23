@@ -18,7 +18,7 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 **Versión 3** (constitución v2.1.0, spec v3, plan v3.0.0):
 - Las fases 1–8 (T001–T054) son la implementación v1, ya completada; se conservan para la
   trazabilidad.
-- Las fases 9–16 (T055–T093) migran a la v3: REST + GraphQL con MSW en el navegador, sin login,
+- Las fases 9–16 (T055–T087) migran a la v3: REST + GraphQL con MSW en el navegador, sin login,
   `localStorage`, fechas y disponibilidad informativas, mejoras de interfaz, Actions → `gh-pages`,
   README y navegadores.
 - El bloque v2 (T055–T075 de la versión 2 de este archivo) nunca se ejecutó y queda reemplazado;
