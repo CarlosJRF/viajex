@@ -13,7 +13,11 @@ description: "Lista de tareas para implementar el sistema de reserva de vuelos y
 **Tests**: solo los que exige FR-030: cálculo del total y validaciones, con Vitest + Testing
 Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
-**Organization**: las tareas se agrupan por historia de usuario (US1–US5 = P1–P5 de `spec.md`).
+**Organization**: las tareas se agrupan por historia de usuario (US1–US6 = P1–P6 de `spec.md`).
+
+**Versión 2** (constitución v2.0.0, spec v2, plan v2.0.0): las fases 1–8 (T001–T054) son la
+implementación v1 ya completada y se conservan para la trazabilidad. Las fases 9–13 (T055–T075)
+migran a la v2: mock en el navegador, sin login, `localStorage` y GitHub Pages.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -34,28 +38,28 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Crear `package.json` en la raíz (`"private": true`) con devDependency `concurrently@^9`
+- [X] T001 Crear `package.json` en la raíz (`"private": true`) con devDependency `concurrently@^9`
   y los scripts `"dev": "concurrently -n server,client \"npm run dev --prefix server\" \"npm run dev --prefix client\""`
   y `"test": "npm test --prefix client"`. Crear `.gitignore` en la raíz con `node_modules/` y
   `dist/`.
-- [ ] T002 [P] Crear `server/package.json` con `"type": "module"`, scripts
+- [X] T002 [P] Crear `server/package.json` con `"type": "module"`, scripts
   `"dev": "node --watch src/index.js"` y `"start": "node src/index.js"`, y dependencies
   `@apollo/server@^5`, `@graphql-tools/mock@^9`, `@graphql-tools/schema@^10`, `graphql@^16`.
-- [ ] T003 [P] Crear `client/package.json` con `"type": "module"` y scripts `"dev": "vite"`,
+- [X] T003 [P] Crear `client/package.json` con `"type": "module"` y scripts `"dev": "vite"`,
   `"build": "vite build"` y `"test": "vitest run"`.
   - dependencies: `react@^19`, `react-dom@^19`, `react-router@^7`.
   - devDependencies: `vite@^7`, `@vitejs/plugin-react`, `tailwindcss@^4`, `@tailwindcss/vite@^4`,
     `vitest@^3`, `@testing-library/react@^16`, `@testing-library/dom` (peer obligatorio de la
     anterior) y `jsdom`.
-- [ ] T004 Crear `client/vite.config.js` con:
+- [X] T004 Crear `client/vite.config.js` con:
   - plugins `react()` y `tailwindcss()`;
   - `server.proxy: { '/graphql': 'http://localhost:4000' }`;
   - `test: { environment: 'jsdom' }`.
-- [ ] T005 [P] Crear `client/index.html` (`lang="es"`, título "Viajex", `<div id="root">`, script
+- [X] T005 [P] Crear `client/index.html` (`lang="es"`, título "Viajex", `<div id="root">`, script
   `/src/main.jsx`), `client/src/index.css` (solo `@import "tailwindcss";`) y
   `client/src/main.jsx` (monta `<App />` dentro de `<BrowserRouter>` de `react-router` e importa
   `./index.css`).
-- [ ] T006 Ejecutar `npm install` en la raíz, en `server/` y en `client/`, y verificar que
+- [X] T006 Ejecutar `npm install` en la raíz, en `server/` y en `client/`, y verificar que
   terminen sin errores.
 
 ---
@@ -66,9 +70,9 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Crear `server/src/schema.js`, que exporta `typeDefs`: un template string con el
+- [X] T007 [P] Crear `server/src/schema.js`, que exporta `typeDefs`: un template string con el
   contenido íntegro de `contracts/schema.graphql`, sin agregar ni quitar tipos ni campos.
-- [ ] T008 [P] Crear `server/src/mocks.js` con los datos fijos (research R3, R11) y el store:
+- [X] T008 [P] Crear `server/src/mocks.js` con los datos fijos (research R3, R11) y el store:
   - **Usuario**: exportar `usuarioMock = { id: 'u1', nombre: 'Usuario Demo', correo: 'demo@viajes.cl', contrasena: 'demo1234' }`.
   - **Catálogo**: un arreglo `catalogo` con 5 destinos de países distintos: Cusco (Perú), Cancún
     (México), Buenos Aires (Argentina), Madrid (España) y Río de Janeiro (Brasil).
@@ -84,32 +88,32 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
   - **Store**: exportar `crearStore(schema)`, que llama a `createMockStore({ schema })`, ejecuta
     `store.set('Query', 'ROOT', 'destinos', catalogo)` y
     `store.set('Query', 'ROOT', 'reservas', [])`, y devuelve el store.
-- [ ] T009 En `server/src/mocks.js`, exportar también `crearResolvers(store)`:
+- [X] T009 En `server/src/mocks.js`, exportar también `crearResolvers(store)`:
   - `Query.destinos`: devuelve `store.get('Query', 'ROOT', 'destinos')`.
   - `Query.destino(id)`: devuelve `null` si `!store.has('Destino', id)`; si existe, devuelve
     `store.get('Destino', id)`.
   - Usar siempre `store.has` antes de `store.get` con ids recibidos, porque `get` crea mocks
     aleatorios si la clave no existe.
-- [ ] T010 Crear `server/src/index.js`:
+- [X] T010 Crear `server/src/index.js`:
   - `makeExecutableSchema({ typeDefs })`, luego `crearStore(schema)` y
     `addMocksToSchema({ schema, store, resolvers: crearResolvers(store) })`.
   - `new ApolloServer({ schema })` y `startStandaloneServer(servidor, { listen: { port: 4000 } })`.
   - Registrar la URL en consola.
-- [ ] T011 [P] Crear `client/src/lib/api.js`, que exporta `consultar(query, variables = {})`:
+- [X] T011 [P] Crear `client/src/lib/api.js`, que exporta `consultar(query, variables = {})`:
   - Hace `fetch('/graphql', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })`
     y devuelve `data`.
   - Ante un fallo de red o una respuesta no OK, lanza `Error('No pudimos conectar con el servidor. Inténtalo nuevamente.')`.
   - Ante `errors` de GraphQL, lanza `Error('Ocurrió un problema al procesar tu solicitud.')`.
   - Nunca propaga texto técnico (FR-024).
-- [ ] T012 [P] Crear `client/src/lib/formatos.js`:
+- [X] T012 [P] Crear `client/src/lib/formatos.js`:
   - `formatearCLP(monto)` con `Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' })`
     (ejemplo `$1.250.000`).
   - `formatearFecha('AAAA-MM-DD')` → `'dd/mm/aaaa'`, partiendo el texto sin usar `Date` (R7).
-- [ ] T013 [P] Crear `client/src/components/MensajeError.jsx` con props `mensaje`, `alReintentar`
+- [X] T013 [P] Crear `client/src/components/MensajeError.jsx` con props `mensaje`, `alReintentar`
   (opcional: si existe, muestra el botón "Reintentar") y `children` (enlaces opcionales).
-- [ ] T014 [P] Crear `client/src/components/BarraNavegacion.jsx` con un enlace "Viajex" a `/`.
+- [X] T014 [P] Crear `client/src/components/BarraNavegacion.jsx` con un enlace "Viajex" a `/`.
   US2 le agrega la sesión.
-- [ ] T015 Crear `client/src/App.jsx`:
+- [X] T015 Crear `client/src/App.jsx`:
   - `const [usuario, setUsuario] = useState(null)`.
   - Renderiza `<BarraNavegacion />` y un `<Routes>` vacío, dentro de un contenedor Tailwind
     centrado. Las rutas se agregan en cada historia.
@@ -129,32 +133,32 @@ vuelos, hoteles y tours (quickstart 1–4).
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Crear `client/src/graphql/destinos.js`, que exporta:
+- [X] T016 [P] [US1] Crear `client/src/graphql/destinos.js`, que exporta:
   - `DESTINOS`: consulta `destinos { id nombre imagen pais { nombre } actividadesPopulares { id nombre } }`.
   - `DESTINO`: consulta `destino(id: $id)` con `id nombre imagen pais { nombre }`, `vuelos`,
     `hoteles` y `tours { id nombre precio actividades { id nombre } }`, con todos sus campos.
-- [ ] T017 [P] [US1] Crear `client/src/components/TarjetaDestino.jsx`. Muestra imagen, nombre,
+- [X] T017 [P] [US1] Crear `client/src/components/TarjetaDestino.jsx`. Muestra imagen, nombre,
   país y actividades populares, y enlaza a `/destinos/:id` con `Link`.
-- [ ] T018 [P] [US1] Crear `client/src/components/TarjetaVuelo.jsx`. Muestra aerolínea, horarios
+- [X] T018 [P] [US1] Crear `client/src/components/TarjetaVuelo.jsx`. Muestra aerolínea, horarios
   de ida y vuelta y `formatearCLP(precio)` + " por pasajero". Props opcionales `seleccionado`
   y `alAlternar`: si existe `alAlternar`, la tarjeta es clicable y resalta cuando está
   seleccionada.
-- [ ] T019 [P] [US1] Crear `client/src/components/TarjetaHotel.jsx`. Muestra nombre, `categoria`
+- [X] T019 [P] [US1] Crear `client/src/components/TarjetaHotel.jsx`. Muestra nombre, `categoria`
   como estrellas y `formatearCLP(precioNoche)` + " por noche". Mismas props opcionales que T018.
-- [ ] T020 [P] [US1] Crear `client/src/components/TarjetaTour.jsx`. Muestra nombre, lista de
+- [X] T020 [P] [US1] Crear `client/src/components/TarjetaTour.jsx`. Muestra nombre, lista de
   actividades y `formatearCLP(precio)` + " por persona". Mismas props opcionales que T018.
-- [ ] T021 [US1] Crear `client/src/pages/PaginaInicio.jsx`:
+- [X] T021 [US1] Crear `client/src/pages/PaginaInicio.jsx`:
   - `useEffect` + `consultar(DESTINOS)`, con estados `cargando`, `error` y `destinos`.
   - Muestra una grilla de `TarjetaDestino` en el orden del catálogo.
   - Si falla, muestra `MensajeError` con `alReintentar`, que repite la carga (FR-012).
-- [ ] T022 [US1] Crear `client/src/pages/PaginaDestino.jsx`:
+- [X] T022 [US1] Crear `client/src/pages/PaginaDestino.jsx`:
   - Lee `id` con `useParams` y consulta `DESTINO`.
   - Muestra el encabezado (imagen, nombre, país) y tres secciones: "Vuelos", "Hoteles" y "Tours",
     con sus tarjetas.
   - Si `destino` es `null`, muestra `MensajeError` "No encontramos ese destino." con un enlace a
     `/` (FR-011).
   - Si la carga falla, muestra `MensajeError` con reintentar.
-- [ ] T023 [US1] En `client/src/App.jsx`, agregar las rutas `/` → `PaginaInicio` y
+- [X] T023 [US1] En `client/src/App.jsx`, agregar las rutas `/` → `PaginaInicio` y
   `/destinos/:id` → `PaginaDestino`.
 
 **Checkpoint**: quickstart 1–4 pasan sin sesión.
@@ -174,13 +178,13 @@ Dependencies.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T024 [P] [US2] Crear `client/src/lib/calculos.test.js` (Vitest) con estos casos:
+- [X] T024 [P] [US2] Crear `client/src/lib/calculos.test.js` (Vitest) con estos casos:
   - `calcularNoches('2026-12-01', '2026-12-04') === 3`.
   - `calcularTotal` con vuelo, hotel y 2 tours, 2 pasajeros y 3 noches: vuelo×2 + hotel×3 +
     (tour1 + tour2)×2.
   - Sin vuelo, sin hotel y sin tours: cada ítem ausente suma 0.
   - Con 1 y con 4 pasajeros, comprobando que el hotel no se multiplica por pasajeros.
-- [ ] T025 [P] [US2] Crear `client/src/lib/validaciones.test.js` (Vitest) con estos casos:
+- [X] T025 [P] [US2] Crear `client/src/lib/validaciones.test.js` (Vitest) con estos casos:
   - Una reserva sin vuelo, sin hotel y con `tourIds` vacío devuelve "Selecciona al menos un
     servicio para crear la reserva".
   - `pasajeros` 0 devuelve "Indica al menos 1 pasajero".
@@ -188,19 +192,19 @@ Dependencies.
   - Con regreso igual y con regreso anterior a la salida devuelve "La fecha de regreso debe ser
     posterior a la de salida".
   - Una reserva válida devuelve `[]`.
-- [ ] T026 [P] [US2] Crear `client/src/components/FormularioReserva.test.jsx` (Testing Library).
+- [X] T026 [P] [US2] Crear `client/src/components/FormularioReserva.test.jsx` (Testing Library).
   - Renderiza `FormularioReserva` con una selección sin servicios y hace clic en confirmar.
   - Verifica que aparece "Selecciona al menos un servicio para crear la reserva" y que
     `alConfirmar` no se llamó.
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Crear `client/src/lib/calculos.js`:
+- [X] T027 [P] [US2] Crear `client/src/lib/calculos.js`:
   - `calcularNoches(fechaSalida, fechaRegreso)`: días entre las dos fechas, usando `Date.UTC` (R7).
   - `calcularTotal({ vuelo, hotel, tours, pasajeros, noches })`, con la fórmula
     `(vuelo?.precio ?? 0) × pasajeros + (hotel?.precioNoche ?? 0) × noches + Σ tour.precio × pasajeros`.
   - Solo funciones puras.
-- [ ] T028 [P] [US2] Crear `client/src/lib/validaciones.js` con
+- [X] T028 [P] [US2] Crear `client/src/lib/validaciones.js` con
   `validarReserva({ vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso })`. Devuelve
   un arreglo de mensajes, vacío si la reserva es válida, con estas reglas en este orden:
   1. "`vuelo` o `hotel` o `tours.length > 0`" → "Selecciona al menos un servicio para crear la
@@ -208,9 +212,9 @@ Dependencies.
   2. "`pasajeros >= 1` (entero)" → "Indica al menos 1 pasajero".
   3. "`fechaSalida` y `fechaRegreso` informadas" → "Indica las fechas de salida y regreso".
   4. "`fechaRegreso > fechaSalida`" → "La fecha de regreso debe ser posterior a la de salida".
-- [ ] T029 [P] [US2] Crear `client/src/graphql/sesion.js`, que exporta `LOGIN`: mutation
+- [X] T029 [P] [US2] Crear `client/src/graphql/sesion.js`, que exporta `LOGIN`: mutation
   `login(correo: $correo, contrasena: $contrasena) { id nombre correo }`.
-- [ ] T030 [US2] En `server/src/mocks.js`, agregar:
+- [X] T030 [US2] En `server/src/mocks.js`, agregar:
   - `Mutation.login`: devuelve `{ id, nombre, correo }` de `usuarioMock` si el correo y la
     contraseña coinciden; si no, `null`.
   - `Mutation.crearReserva(datos)`:
@@ -218,37 +222,37 @@ Dependencies.
       pertenezcan al destino; si no, lanza `GraphQLError`.
     - Genera `id = crypto.randomUUID()` y ejecuta `store.set('Reserva', id, { id, usuarioId, destino: store.get('Destino', destinoId), vuelo: vueloId ? store.get('Vuelo', vueloId) : null, hotel: …, tours: tourIds.map(…), pasajeros, fechaSalida, fechaRegreso, total })`.
     - Agrega `store.get('Reserva', id)` a `Query.ROOT.reservas` y la devuelve (R4).
-- [ ] T031 [US2] Crear `client/src/graphql/reservas.js` con la mutation `CREAR_RESERVA`:
+- [X] T031 [US2] Crear `client/src/graphql/reservas.js` con la mutation `CREAR_RESERVA`:
   `crearReserva(datos: $datos) { id }`.
-- [ ] T032 [US2] Crear `client/src/pages/PaginaLogin.jsx`:
+- [X] T032 [US2] Crear `client/src/pages/PaginaLogin.jsx`:
   - Formulario con correo y contraseña que llama a `consultar(LOGIN)`.
   - Si `login` es `null`, muestra "Correo o contraseña incorrectos.".
   - Si hay error, muestra el mensaje de `consultar`.
   - Si funciona, llama a la prop `alIniciarSesion(usuario)` y navega a `location.state?.desde ?? '/'`,
     pasando `{ seleccion: location.state?.seleccion }` como `state` (FR-007, FR-016).
-- [ ] T033 [US2] En `client/src/components/BarraNavegacion.jsx`:
+- [X] T033 [US2] En `client/src/components/BarraNavegacion.jsx`:
   - Agregar las props `usuario` y `alCerrarSesion`.
   - Con sesión, muestra `usuario.nombre`, un enlace "Mis reservas" y el botón "Cerrar sesión".
   - Sin sesión, muestra un enlace "Iniciar sesión".
-- [ ] T034 [US2] En `client/src/App.jsx`:
+- [X] T034 [US2] En `client/src/App.jsx`:
   - Definir `cerrarSesion`, que pone `usuario` en `null` y navega a `/` (FR-005).
   - Pasar `usuario` y `cerrarSesion` a `BarraNavegacion`.
   - Agregar la ruta `/login` → `PaginaLogin alIniciarSesion={setUsuario}`.
   - Pasar `usuario` a `PaginaDestino`.
-- [ ] T035 [US2] Crear `client/src/components/SelectorServicios.jsx`:
+- [X] T035 [US2] Crear `client/src/components/SelectorServicios.jsx`:
   - Props: `destino`, `seleccion` y `alCambiar`.
   - Renderiza las tarjetas de T018–T020 en modo seleccionable:
     - vuelo: uno como máximo; un clic en el seleccionado lo quita;
     - hotel: uno como máximo; mismo comportamiento;
     - tours: alterna la presencia del tour en `tourIds`.
   - Llama a `alCambiar` con la nueva selección, sin mutarla.
-- [ ] T036 [US2] Crear `client/src/components/FormularioReserva.jsx`:
+- [X] T036 [US2] Crear `client/src/components/FormularioReserva.jsx`:
   - Props: `destino`, `seleccion`, `alCambiar`, `alConfirmar` y `textoBoton`.
   - Campos: pasajeros (número, mínimo 1), fecha de salida y fecha de regreso (inputs `date`, ISO).
   - Muestra el total en vivo con `formatearCLP(calcularTotal(...))` (FR-014).
   - Al confirmar, ejecuta `validarReserva`. Si hay errores, los muestra y no llama a
     `alConfirmar`. Si no, llama a `alConfirmar({ ...seleccion, total })`.
-- [ ] T037 [US2] En `client/src/pages/PaginaDestino.jsx`:
+- [X] T037 [US2] En `client/src/pages/PaginaDestino.jsx`:
   - Estado `seleccion` con valor inicial
     `location.state?.seleccion ?? { vueloId: null, hotelId: null, tourIds: [], pasajeros: 1, fechaSalida: '', fechaRegreso: '' }`.
   - Renderizar `SelectorServicios` y `FormularioReserva` (`textoBoton` "Confirmar reserva").
@@ -270,28 +274,28 @@ volver a ingresar y verificar que sigue ahí (quickstart 7, 11, 12, 17).
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] En `server/src/mocks.js`, agregar:
+- [X] T038 [US3] En `server/src/mocks.js`, agregar:
   - `Query.reservas(usuarioId)`: filtra `Query.ROOT.reservas` por
     `store.get(ref, 'usuarioId') === usuarioId`.
   - `Query.reserva(id, usuarioId)`: devuelve `null` si `!store.has('Reserva', id)` o si la reserva
     pertenece a otro usuario.
-- [ ] T039 [US3] En `client/src/graphql/reservas.js`, agregar `RESERVAS`:
+- [X] T039 [US3] En `client/src/graphql/reservas.js`, agregar `RESERVAS`:
   `reservas(usuarioId: $usuarioId) { id pasajeros fechaSalida fechaRegreso total destino { id nombre } vuelo { aerolinea } hotel { nombre } tours { id nombre } }`.
-- [ ] T040 [P] [US3] Crear `client/src/components/RutaProtegida.jsx` con props `usuario` y
+- [X] T040 [P] [US3] Crear `client/src/components/RutaProtegida.jsx` con props `usuario` y
   `children`. Sin `usuario`, devuelve
   `<Navigate to="/login" replace state={{ desde: location.pathname }} />`.
-- [ ] T041 [P] [US3] Crear `client/src/components/TarjetaReserva.jsx`:
+- [X] T041 [P] [US3] Crear `client/src/components/TarjetaReserva.jsx`:
   - Muestra destino, `formatearFecha` de salida y regreso, pasajeros, ítems incluidos (aerolínea,
     hotel y tours) y `formatearCLP(total)`.
   - Enlace "Ver / modificar" a `/reservas/:id`.
   - Prop opcional `alEliminar`: si existe, muestra el botón "Eliminar".
-- [ ] T042 [US3] Crear `client/src/pages/PaginaReservas.jsx`:
+- [X] T042 [US3] Crear `client/src/pages/PaginaReservas.jsx`:
   - Prop `usuario`; consulta `RESERVAS` con `usuario.id`.
   - Muestra la lista de `TarjetaReserva`.
   - Sin reservas, muestra "Aún no tienes reservas. ¡Explora destinos para planificar tu viaje!"
     con un enlace a `/`.
   - Si hay error, muestra `MensajeError` con reintentar.
-- [ ] T043 [US3] En `client/src/App.jsx`, agregar la ruta `/reservas` → `PaginaReservas`,
+- [X] T043 [US3] En `client/src/App.jsx`, agregar la ruta `/reservas` → `PaginaReservas`,
   envuelta en `RutaProtegida`.
 
 **Checkpoint**: quickstart 7, 11, 12 y 17 pasan.
@@ -308,18 +312,18 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 ### Implementation for User Story 4
 
-- [ ] T044 [US4] En `server/src/mocks.js`, agregar `Mutation.actualizarReserva(id, usuarioId, cambios)`:
+- [X] T044 [US4] En `server/src/mocks.js`, agregar `Mutation.actualizarReserva(id, usuarioId, cambios)`:
   - Lanza `GraphQLError` si la reserva no existe o es de otro usuario.
   - Valida que el vuelo, el hotel y los tours pertenezcan al destino de la reserva.
   - Reemplaza con `store.set('Reserva', id, {...})` `vuelo`, `hotel`, `tours`, `pasajeros`,
     `fechaSalida`, `fechaRegreso` y `total`.
   - **No** modifica `destino` ni `usuarioId`. Devuelve la reserva.
-- [ ] T045 [US4] En `client/src/graphql/reservas.js`, agregar:
+- [X] T045 [US4] En `client/src/graphql/reservas.js`, agregar:
   - `RESERVA`: `reserva(id: $id, usuarioId: $usuarioId)` con todos sus campos, `vuelo { id }`,
     `hotel { id }`, `tours { id }` y el destino completo, igual que en `DESTINO`.
   - `ACTUALIZAR_RESERVA`: `actualizarReserva(id, usuarioId, cambios)`, que devuelve los mismos
     campos que `RESERVA`.
-- [ ] T046 [US4] Crear `client/src/pages/PaginaReserva.jsx`:
+- [X] T046 [US4] Crear `client/src/pages/PaginaReserva.jsx`:
   - Prop `usuario`; consulta `RESERVA` e inicializa `seleccion` desde la reserva (`vueloId`,
     `hotelId`, `tourIds`, `pasajeros`, `fechaSalida`, `fechaRegreso`).
   - Muestra el destino como texto fijo, sin control para cambiarlo, y renderiza
@@ -327,7 +331,7 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
   - Al confirmar, llama a `ACTUALIZAR_RESERVA` y muestra la reserva actualizada con su nuevo total.
   - Si la reserva no existe, muestra `MensajeError` "No encontramos esa reserva." con un enlace a
     `/reservas`.
-- [ ] T047 [US4] En `client/src/App.jsx`, agregar la ruta `/reservas/:id` → `PaginaReserva`,
+- [X] T047 [US4] En `client/src/App.jsx`, agregar la ruta `/reservas/:id` → `PaginaReserva`,
   envuelta en `RutaProtegida`.
 
 **Checkpoint**: quickstart 13 y 14 pasan.
@@ -343,16 +347,16 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 ### Implementation for User Story 5
 
-- [ ] T048 [US5] En `server/src/mocks.js`, agregar `Mutation.eliminarReserva(id, usuarioId)`:
+- [X] T048 [US5] En `server/src/mocks.js`, agregar `Mutation.eliminarReserva(id, usuarioId)`:
   - Lanza `GraphQLError` si la reserva no existe o es de otro usuario.
   - Quita su referencia de `Query.ROOT.reservas` y devuelve `id`.
-- [ ] T049 [US5] En `client/src/graphql/reservas.js`, agregar `ELIMINAR_RESERVA`:
+- [X] T049 [US5] En `client/src/graphql/reservas.js`, agregar `ELIMINAR_RESERVA`:
   `eliminarReserva(id: $id, usuarioId: $usuarioId)`.
-- [ ] T050 [US5] En `client/src/pages/PaginaReservas.jsx`:
+- [X] T050 [US5] En `client/src/pages/PaginaReservas.jsx`:
   - Pasar `alEliminar` a cada `TarjetaReserva`.
   - `alEliminar` pide `window.confirm('¿Eliminar esta reserva?')`. Si se acepta, llama a
     `ELIMINAR_RESERVA` y quita la reserva del estado (R13).
-- [ ] T051 [US5] En `client/src/pages/PaginaReserva.jsx`, agregar el botón "Eliminar reserva".
+- [X] T051 [US5] En `client/src/pages/PaginaReserva.jsx`, agregar el botón "Eliminar reserva".
   Pide la misma confirmación, llama a `ELIMINAR_RESERVA` y navega a `/reservas`.
 
 **Checkpoint**: quickstart 15 y 16 pasan.
@@ -363,20 +367,148 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T052 Revisar `client/src` y `server/src` contra la constitución IV:
+- [X] T052 Revisar `client/src` y `server/src` contra la constitución IV:
   - identificadores en español;
   - comentarios en español de 100 caracteres como máximo;
   - sin código repetido entre `PaginaDestino` y `PaginaReserva` (ambas usan `SelectorServicios` y
     `FormularioReserva`);
   - ningún mensaje visible con texto técnico (FR-024, SC-005).
-- [ ] T053 Ejecutar `npm test` en la raíz y confirmar que pasan todas las pruebas de FR-030.
-- [ ] T054 Recorrer los escenarios 1–17 de `quickstart.md` y registrar cualquier fallo.
+- [X] T053 Ejecutar `npm test` en la raíz y confirmar que pasan todas las pruebas de FR-030.
+- [X] T054 Recorrer los escenarios 1–17 de `quickstart.md` y registrar cualquier fallo.
+
+---
+
+---
+
+## Phase 9: Setup v2 (Shared Infrastructure)
+
+**Purpose**: dejar el proyecto como una app estática sin servidor (plan v2, R14, R17, R18)
+
+- [ ] T055 En `client/package.json`, agregar a `dependencies`: `msw@^2`, `graphql@^16`,
+  `@graphql-tools/mock@^9` y `@graphql-tools/schema@^10`. Cambiar el script `build` a
+  `"vite build && cp dist/index.html dist/404.html"` (R18) y agregar `"preview": "vite preview"`.
+  Ejecutar `npm install` en `client/`.
+- [ ] T056 Ejecutar `npx msw init public --save` dentro de `client/`. Debe generar
+  `client/public/mockServiceWorker.js` y agregar `"msw": { "workerDirectory": ["public"] }` en
+  `client/package.json`. Crear `client/public/.nojekyll` vacío (R18).
+- [ ] T057 En `client/vite.config.js`: agregar `base: '/viajex/'`, eliminar `server.proxy` y
+  conservar los plugins y `test: { environment: 'jsdom' }` (R17).
+- [ ] T058 En el `package.json` raíz: eliminar `concurrently` y dejar los scripts
+  `"dev": "npm run dev --prefix client"`, `"build": "npm run build --prefix client"`,
+  `"preview": "npm run preview --prefix client"` y `"test": "npm test --prefix client"`. Ejecutar
+  `npm install` en la raíz para actualizar `package-lock.json`.
+- [ ] T059 Eliminar el directorio `server/` completo (R14). Su catálogo se mueve en T061.
+
+---
+
+## Phase 10: Foundational v2 — API GraphQL mock en el navegador
+
+**Purpose**: FR-031 y FR-032. ⚠️ Bloquea las fases 11 y 12.
+
+- [ ] T060 [P] Crear `client/src/mocks/schema.js`, que exporta `typeDefs`: un template string con el
+  contenido íntegro de `contracts/schema.graphql` v2 (sin `Usuario`, `login` ni `usuarioId`).
+- [ ] T061 [P] Crear `client/src/mocks/catalogo.js` con el arreglo `catalogo` y sus ayudantes
+  (`actividad`, `vuelo`, `hotel`, `tour`, `imagen`), copiados sin cambios de los datos de
+  `server/src/mocks.js` de v1 (mismos ids y precios). No incluye `usuarioMock`.
+- [ ] T062 [P] Crear `client/src/mocks/persistencia.js` (R16):
+  - Constante `CLAVE = 'viajex:reservas'`.
+  - `cargarReservas()`: lee y parsea la clave; devuelve el arreglo, o `[]` si no existe, no es un
+    arreglo o lanza cualquier error.
+  - `guardarReservas(lista)`: `localStorage.setItem(CLAVE, JSON.stringify(lista))` dentro de
+    `try/catch`, ignorando errores.
+  - Formato de cada elemento: `{ id, destinoId, vueloId, hotelId, tourIds, pasajeros,
+    fechaSalida, fechaRegreso, total }`.
+- [ ] T063 Crear `client/src/mocks/resolvers.js`, adaptando los resolvers de `server/src/mocks.js`
+  de v1:
+  - `crearStore(schema)`: `createMockStore({ schema })`; carga `catalogo` en `Query.ROOT.destinos`
+    y `[]` en `Query.ROOT.reservas`; luego inserta cada reserva de `cargarReservas()` cuyas
+    opciones sean válidas para su destino, conservando su `id` (si no son válidas, la omite).
+  - `crearResolvers(store)`:
+    - `Query.destinos`, `Query.destino(id)`, `Query.reservas` (todas las de la lista) y
+      `Query.reserva(id)` (`null` si no está en la lista).
+    - `Mutation.crearReserva(datos)`, `Mutation.actualizarReserva(id, cambios)` y
+      `Mutation.eliminarReserva(id)`, con las mismas validaciones de v1 (`GraphQLError` si el
+      destino, las opciones o la reserva no existen), sin `usuarioId` ni `login`.
+    - Después de cada mutation exitosa: `guardarReservas(serializar(store))`, donde `serializar`
+      convierte la lista `Query.ROOT.reservas` al formato de T062.
+  - Usar `crypto.randomUUID()` del navegador (sin importar `node:crypto`).
+- [ ] T064 Crear `client/src/mocks/navegador.js` (R15):
+  - `esquema = addMocksToSchema({ schema: makeExecutableSchema({ typeDefs }), store, resolvers })`,
+    con `store = crearStore(...)` sobre el esquema base.
+  - Exporta `worker = setupWorker(graphql.operation(async ({ query, variables }) =>
+    HttpResponse.json(await graphqlEjecutar({ schema: esquema, source: query, variableValues:
+    variables }))))`, donde `graphqlEjecutar` es `graphql` de la librería `graphql` importado con
+    ese alias.
+- [ ] T065 En `client/src/main.jsx`:
+  - Antes de renderizar, `await worker.start({ serviceWorker: { url:
+    `${import.meta.env.BASE_URL}mockServiceWorker.js` }, onUnhandledRequest: 'bypass', quiet: true })`.
+  - Pasar `basename={import.meta.env.BASE_URL}` a `BrowserRouter` (R17).
+- [ ] T066 En `client/src/lib/api.js`, cambiar la URL de `fetch` a
+  `` `${import.meta.env.BASE_URL}graphql` `` (R17). Los mensajes amigables no cambian.
+
+**Checkpoint**: `npm run dev` y abrir `http://localhost:5173/viajex/` muestra los 5 destinos sin
+servidor; las pruebas siguen en verde.
+
+---
+
+## Phase 11: Eliminar el login (FR-001 a FR-007 y FR-016 eliminados en v2)
+
+**Purpose**: dejar toda la app pública (constitución v2.0.0, § Sesión; R20)
+
+- [ ] T067 Eliminar `client/src/pages/PaginaLogin.jsx`, `client/src/components/RutaProtegida.jsx` y
+  `client/src/graphql/sesion.js`.
+- [ ] T068 En `client/src/graphql/reservas.js`, quitar `$usuarioId` y `usuarioId` de `RESERVAS`,
+  `RESERVA`, `ACTUALIZAR_RESERVA` y `ELIMINAR_RESERVA`, según `contracts/schema.graphql` v2.
+- [ ] T069 En `client/src/App.jsx`: quitar el estado `usuario`, `cerrarSesion`, `useNavigate`, la ruta
+  `/login` y los envoltorios `RutaProtegida`; las rutas `/reservas` y `/reservas/:id` quedan
+  públicas, y las páginas ya no reciben `usuario`.
+- [ ] T070 [P] En `client/src/components/BarraNavegacion.jsx`: sin props; muestra el enlace "Viajex"
+  a `/` y, siempre, el enlace "Mis reservas" a `/reservas`.
+- [ ] T071 [P] En `client/src/pages/PaginaDestino.jsx`: quitar la prop `usuario`, la redirección
+  al login y el estado inicial desde `location.state` (`seleccion` parte de `seleccionVacia`).
+  `confirmar` siempre llama a `CREAR_RESERVA` con `{ destinoId: id, ...datos, total }` y navega a
+  `/reservas` (FR-015).
+- [ ] T072 [P] En `client/src/pages/PaginaReservas.jsx` y `client/src/pages/PaginaReserva.jsx`: quitar
+  la prop `usuario` y el argumento `usuarioId` de todas las operaciones.
+
+**Checkpoint**: no queda ninguna referencia a `usuario`, `login` ni `RutaProtegida` en `client/src`.
+
+---
+
+## Phase 12: Validación v2
+
+**Purpose**: comprobar FR-030 a FR-033 antes de publicar
+
+- [ ] T073 Ejecutar `npm test` en la raíz: deben pasar los 11 casos de FR-030, sin cambios en las
+  pruebas.
+- [ ] T074 Recorrer los escenarios 1–18 de `quickstart.md` v2 en Chrome: los escenarios 1–17 con
+  `npm run dev` y el 18 con `npm run build` + `npm run preview`. Registrar cualquier fallo.
+
+---
+
+## Phase 13: Publicación (US6, FR-033)
+
+**Purpose**: publicar la demo en GitHub Pages (R19)
+
+- [ ] T075 [US6] Publicar `client/dist/` en la rama huérfana `gh-pages` con los comandos de
+  `quickstart.md` ("Publicación en GitHub Pages"). Activar Pages con origen `gh-pages` / root
+  (en Settings, o con `gh api repos/<dueño>/viajex/pages` previa confirmación del autor). Verificar
+  el escenario 19 en la URL publicada.
 
 ---
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
+### Phase Dependencies (v2)
+
+- **Fases 1–8**: completadas en v1.
+- **Phase 9 (Setup v2)** → **Phase 10 (mock en el navegador)** → **Phase 11 (sin login)** →
+  **Phase 12 (validación)** → **Phase 13 (publicación)**.
+- Archivos compartidos en orden secuencial: `client/package.json` (T055 → T056) y
+  `client/src/App.jsx` (T069).
+- Paralelizables: T060, T061 y T062; luego T070, T071 y T072 (archivos distintos, tras T068 y T069).
+
+### Phase Dependencies (v1)
 
 - **Setup (Phase 1)**: sin dependencias.
 - **Foundational (Phase 2)**: depende de Setup y bloquea todas las historias.
