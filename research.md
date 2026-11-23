@@ -19,8 +19,8 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 
 - **Decision**: se agregan solo las piezas que el stack exige para funcionar: `graphql` (peer de
   Apollo), `@graphql-tools/schema` (para `makeExecutableSchema`, que `addMocksToSchema` necesita),
-  `@vitejs/plugin-react`, `@tailwindcss/vite` y `jsdom` (entorno DOM que Testing Library
-  necesita en Vitest).
+  `@vitejs/plugin-react`, `@tailwindcss/vite`, `jsdom` (entorno DOM que Testing Library
+  necesita en Vitest) y `@testing-library/dom` (peer obligatorio de `@testing-library/react` 16).
 - **Rationale**: sin ellas, el stack de la constitución no se puede instalar ni probar. No aportan
   funcionalidad propia.
 - **Alternatives considered**: ninguna; son dependencias obligatorias de las librerías elegidas.

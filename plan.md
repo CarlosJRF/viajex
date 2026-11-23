@@ -34,7 +34,8 @@ Detalle de las decisiones en [research.md](research.md).
 **Storage**: ninguno. Todo vive en memoria, en `createMockStore`, y se pierde al reiniciar el
 servidor
 
-**Testing**: Vitest 3 + Testing Library (`@testing-library/react`, `jsdom`), solo en el cliente
+**Testing**: Vitest 3 + Testing Library (`@testing-library/react`, `@testing-library/dom`, `jsdom`),
+solo en el cliente
 
 **Target Platform**: navegador de escritorio moderno; servidor Node local en `:4000`; cliente
 Vite en `:5173`
@@ -164,4 +165,4 @@ Las pruebas van junto al archivo que prueban.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Dependencias no nombradas en la constitución: `graphql`, `@graphql-tools/schema`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `jsdom` | Son peers o plugins obligatorios de las librerías que la constitución fija (R2) | Sin ellas, Apollo, `addMocksToSchema`, Vite con JSX, Tailwind 4 y Testing Library no funcionan |
+| Dependencias no nombradas en la constitución: `graphql`, `@graphql-tools/schema`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `jsdom`, `@testing-library/dom` | Son peers o plugins obligatorios de las librerías que la constitución fija (R2) | Sin ellas, Apollo, `addMocksToSchema`, Vite con JSX, Tailwind 4 y Testing Library no funcionan |
