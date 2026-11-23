@@ -153,6 +153,13 @@ proyecto/
 
 Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 
+### Ubicación de los documentos SDD
+
+- `constitucion.md`, `spec.md`, `plan.md` y `tasks.md` DEBEN vivir en la raíz del proyecto; esa
+  es su ubicación canónica.
+- `.specify/memory/constitution.md` es un enlace simbólico a `constitucion.md`, para que Spec Kit
+  lea siempre la misma fuente.
+
 ### Puertas de calidad
 
 - Cada `plan.md` DEBE incluir una verificación explícita contra los principios I–VI.
@@ -173,4 +180,4 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 - **Revisión de cumplimiento:** cada fase del flujo SDD (spec, plan, tasks, implementación) DEBE
   verificar el cumplimiento de esta constitución antes de aprobarse.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
+**Version**: 1.0.1 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
