@@ -562,14 +562,14 @@ sin servidor; las pruebas siguen en verde.
 
 ## Phase 15: Publicación (US6, FR-033, FR-041)
 
-- [ ] T084 [US6] Crear `.github/workflows/publicar.yml` según R30:
+- [X] T084 [US6] Crear `.github/workflows/publicar.yml` según R30:
   - `on: push` a `main` y `workflow_dispatch`; `permissions: contents: write`.
   - Pasos: checkout, setup-node 20 con caché, `npm ci --prefix client`,
     `npm test --prefix client`, y build con `VITE_BASE_PATH=/${{ github.event.repository.name }}/`.
   - Subir `client/dist`: `git init -b gh-pages`, commit `deploy: ${{ github.sha }}` y
     `git push --force` a `https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git`
     `gh-pages`.
-- [ ] T085 [US6] Crear `README.md` en la raíz con:
+- [X] T085 [US6] Crear `README.md` en la raíz con:
   - descripción;
   - enlace a la demo publicada;
   - instalación y scripts (`dev`, `test`, `build`, `preview`);
