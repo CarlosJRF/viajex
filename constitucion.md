@@ -21,18 +21,20 @@ El stack es fijo y NO DEBE ampliarse sin enmendar esta constitución:
 
 - **Frontend / UI:** React con Vite. Estilos con Tailwind CSS.
 - **Navegación:** React Router.
-- **Consumo de la API:** `fetch` nativo hacia el endpoint GraphQL del servidor mock. NO DEBE
-  usarse Apollo Client ni otra librería GraphQL en el cliente.
+- **Consumo de la API:** `fetch` nativo hacia el endpoint GraphQL mock (`/graphql`). El código
+  de la app (páginas, componentes y `lib/`) NO DEBE usar Apollo Client ni otra librería GraphQL;
+  la única excepción es el módulo del mock (`client/src/mocks/`).
 - **Manejo de estado:** `useState` y `useEffect`, con actualización fluida de la interfaz. NO
   DEBEN usarse librerías de estado global.
-- **Backend:** API GraphQL mock con `@apollo/server` + `@graphql-tools/mock`. Expone destinos
-  (con país y actividades populares), vuelos, hoteles, tours, reservas y el login simulado.
-- **Base de datos:** ninguna. Se usa `createMockStore`; los datos viven en memoria y se pierden
-  al reiniciar el servidor.
+- **Backend:** API GraphQL mock que corre en el navegador: Mock Service Worker (`msw`) intercepta
+  `/graphql` y responde con `graphql` + `@graphql-tools/mock`. Expone destinos (con país y
+  actividades populares), vuelos, hoteles, tours y reservas. NO hay servidor Node.
+- **Base de datos:** ninguna. Se usa `createMockStore` en memoria; las reservas se respaldan en
+  el `localStorage` del navegador.
+- **Publicación:** sitio estático en GitHub Pages (rama `gh-pages`).
 - **Lenguaje:** JavaScript (sin TypeScript), HTML y CSS con Tailwind.
 - **Pruebas:** Vitest + Testing Library, solo en el cliente y solo para la lógica clave: cálculo
-  del total de la reserva y validaciones. NO DEBEN probarse el servidor mock ni flujos de
-  extremo a extremo.
+  del total de la reserva y validaciones. NO DEBEN probarse el mock ni flujos de extremo a extremo.
 
 **Razón:** un stack acotado mantiene el foco en React y en el contrato GraphQL.
 
@@ -66,7 +68,7 @@ cambio exige enmendar esta constitución.
   - la fecha de regreso debe ser posterior a la de salida.
 - Ejemplo de mensaje: "Selecciona al menos un servicio para crear la reserva".
 
-**Razón:** la experiencia de usuario no debe depender de la robustez del servidor mock.
+**Razón:** la experiencia de usuario no debe depender de la robustez del mock.
 
 ### VI. Cero código sombra y flujo SDD
 
@@ -86,7 +88,7 @@ cambio exige enmendar esta constitución.
 
 ### Entidades
 
-Usuario, Destino, País, Actividad, Vuelo, Hotel, Tour y Reserva. Un Tour agrupa Actividades y
+Destino, País, Actividad, Vuelo, Hotel, Tour y Reserva. Un Tour agrupa Actividades y
 pertenece a un Destino. Todos los datos se simulan con mocks.
 
 ### Exploración y selección de destino
@@ -95,7 +97,7 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
   actividades.
 - Los usuarios DEBEN poder elegir un destino y, a continuación, ver los vuelos y hoteles
   correspondientes (y sus tours) para una experiencia completa de planificación de viaje.
-- Explorar es público: NO requiere iniciar sesión.
+- Toda la aplicación es pública: explorar y gestionar reservas NO requiere iniciar sesión.
 
 ### Reservas
 
@@ -109,15 +111,12 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
   número de pasajeros y cambiar las fechas de salida y regreso. El destino NO se puede cambiar.
 - **Eliminar:** el usuario puede eliminar una reserva.
 - **Persistencia:** crear, modificar y eliminar reservas se hace con mutations GraphQL sobre el
-  store mock. Las reservas sobreviven a recargar el front, pero se pierden al reiniciar el
-  servidor.
+  store mock. Las reservas se guardan en el `localStorage` del navegador: sobreviven a recargar
+  la página y pertenecen solo a ese navegador; se pierden si se borran los datos del sitio.
 
 ### Sesión
 
-- Login simulado con credenciales fijas de un usuario mock, validadas por una mutation `login`.
-  No hay registro de usuarios.
-- La sesión vive en `useState` y se pierde al recargar la página.
-- Solo las reservas (crear, ver, modificar y eliminar) requieren sesión.
+- No hay login ni usuarios. Las reservas son las del navegador que las creó.
 
 ### Formatos
 
@@ -130,7 +129,7 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
 
 ```text
 proyecto/
-├── package.json              # solo scripts raíz (concurrently)
+├── package.json              # solo scripts raíz que delegan en client/
 ├── constitucion.md
 ├── spec.md
 ├── plan.md
@@ -142,13 +141,9 @@ proyecto/
 │       ├── components/
 │       ├── pages/
 │       ├── graphql/          # queries y mutations como texto (destinos.js)
-│       └── lib/api.js        # función de apoyo con fetch hacia el servidor
-└── server/                   # Apollo + mocks
-    ├── package.json          # "type": "module"
-    └── src/
-        ├── index.js          # arranca Apollo Server
-        ├── schema.js         # typeDefs de todas las entidades
-        └── mocks.js          # datos de ejemplo y createMockStore
+│       ├── lib/api.js        # función de apoyo con fetch hacia /graphql
+│       └── mocks/            # API GraphQL mock en el navegador (MSW + createMockStore)
+└── (sin server/)             # GitHub Pages solo sirve archivos estáticos
 ```
 
 Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
@@ -180,4 +175,4 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 - **Revisión de cumplimiento:** cada fase del flujo SDD (spec, plan, tasks, implementación) DEBE
   verificar el cumplimiento de esta constitución antes de aprobarse.
 
-**Version**: 1.1.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
+**Version**: 2.0.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
