@@ -371,5 +371,5 @@ y recargar una página interna sin error.
 | Versión | Constitución | Cambios |
 |---|---|---|
 | 1 | v1.1.0 | Versión inicial: login simulado, servidor Apollo mock y reservas en memoria del servidor |
-| 3 | v2.1.0 | FR-008 usa REST (`GET /api/destinos`); FR-010 agrega fechas y disponibilidad; FR-033 publica con Actions hacia `gh-pages` y base configurable. Nuevos FR-034 a FR-042 (fechas desde el vuelo, disponibilidad informativa, 404, enlace activo, accesibilidad, cancelación, responsividad, README y navegadores), SC-009 y SC-010 |
 | 2 | v2.0.0 | Se elimina el login (FR-001 a FR-007 y FR-016). FR-025 se reemplaza por FR-031 (`localStorage`). Se agregan FR-032 (mock en el navegador), FR-033 (GitHub Pages), US6, SC-007 y SC-008 |
+| 3 | v2.1.0 | FR-008 usa REST (`GET /api/destinos`); FR-010 agrega fechas y disponibilidad; FR-033 publica con Actions hacia `gh-pages` y base configurable. Nuevos FR-034 a FR-042 (fechas desde el vuelo, disponibilidad informativa, 404, enlace activo, accesibilidad, cancelación, responsividad, README y navegadores), SC-009 y SC-010 |
