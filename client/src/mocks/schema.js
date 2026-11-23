@@ -1,13 +1,7 @@
-// typeDefs de todas las entidades; copia fiel de contracts/schema.graphql
+// typeDefs del mock; copia fiel de contracts/schema.graphql (v3)
 export const typeDefs = /* GraphQL */ `
-# Contrato GraphQL entre client/ y server/ (fuente para server/src/schema.js).
-# Montos: Int en CLP sin decimales. Fechas: String ISO AAAA-MM-DD.
-
-type Usuario {
-  id: ID!
-  nombre: String!
-  correo: String!
-}
+# Contrato GraphQL (v3) entre el código de la app y el mock del navegador (client/src/mocks/).
+# Montos: Int en CLP sin decimales. Fechas: String ISO AAAA-MM-DD. Sin usuarios ni login.
 
 type Pais {
   id: ID!
@@ -24,6 +18,12 @@ type Vuelo {
   aerolinea: String!
   horarioIda: String!
   horarioVuelta: String!
+  "ISO; rellena la fecha de salida al elegir el vuelo (v3)"
+  fechaIda: String!
+  "ISO; rellena la fecha de regreso al elegir el vuelo (v3)"
+  fechaVuelta: String!
+  "Informativo: no se descuenta al reservar (v3)"
+  cupos: Int!
   "CLP por pasajero, ida y vuelta"
   precio: Int!
 }
@@ -33,6 +33,12 @@ type Hotel {
   nombre: String!
   "Estrellas de 1 a 5"
   categoria: Int!
+  "ISO; inicio del rango informativo (v3)"
+  disponibleDesde: String!
+  "ISO; fin del rango informativo (v3)"
+  disponibleHasta: String!
+  "Informativo: no se descuenta al reservar (v3)"
+  habitacionesDisponibles: Int!
   "CLP por noche"
   precioNoche: Int!
 }
@@ -58,7 +64,6 @@ type Destino {
 
 type Reserva {
   id: ID!
-  usuarioId: ID!
   destino: Destino!
   vuelo: Vuelo
   hotel: Hotel
@@ -71,7 +76,6 @@ type Reserva {
 
 "Datos para crear una reserva; el total lo calcula el cliente"
 input ReservaNueva {
-  usuarioId: ID!
   destinoId: ID!
   vueloId: ID
   hotelId: ID
@@ -93,24 +97,21 @@ input ReservaCambios {
   total: Int!
 }
 
+# El listado de destinos se sirve por REST: ver contracts/rest.md (v3)
 type Query {
-  "Catálogo completo en orden del catálogo (público)"
-  destinos: [Destino!]!
-  "null si el destino no existe (público)"
+  "null si el destino no existe"
   destino(id: ID!): Destino
-  "Reservas del usuario"
-  reservas(usuarioId: ID!): [Reserva!]!
-  "null si no existe o no pertenece al usuario"
-  reserva(id: ID!, usuarioId: ID!): Reserva
+  "Reservas guardadas en este navegador, en orden de creación"
+  reservas: [Reserva!]!
+  "null si no existe o fue eliminada"
+  reserva(id: ID!): Reserva
 }
 
 type Mutation {
-  "Devuelve el usuario mock o null si las credenciales no coinciden"
-  login(correo: String!, contrasena: String!): Usuario
   crearReserva(datos: ReservaNueva!): Reserva!
-  "Error GraphQL si la reserva no existe o no pertenece al usuario"
-  actualizarReserva(id: ID!, usuarioId: ID!, cambios: ReservaCambios!): Reserva!
-  "Devuelve el id eliminado; error GraphQL si no existe o no pertenece al usuario"
-  eliminarReserva(id: ID!, usuarioId: ID!): ID!
+  "Error GraphQL si la reserva no existe"
+  actualizarReserva(id: ID!, cambios: ReservaCambios!): Reserva!
+  "Devuelve el id eliminado; error GraphQL si no existe"
+  eliminarReserva(id: ID!): ID!
 }
 `

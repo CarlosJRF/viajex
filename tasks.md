@@ -389,18 +389,18 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 **Purpose**: dejar el proyecto como una app estática sin servidor (R14, R18, R29)
 
-- [ ] T055 En `client/package.json`:
+- [X] T055 En `client/package.json`:
   - Agregar a `dependencies`: `msw@^2`, `graphql@^16`, `@graphql-tools/mock@^9` y
     `@graphql-tools/schema@^10`.
   - Cambiar `build` a `"vite build && cp dist/index.html dist/404.html"` (R18) y agregar
     `"preview": "vite preview"`.
   - Ejecutar `npm install` en `client/`.
-- [ ] T056 Ejecutar `npx msw init public --save` dentro de `client/`: genera
+- [X] T056 Ejecutar `npx msw init public --save` dentro de `client/`: genera
   `client/public/mockServiceWorker.js` y agrega `"msw": { "workerDirectory": ["public"] }` a
   `client/package.json`. Crear `client/public/.nojekyll` vacío (R18).
-- [ ] T057 En `client/vite.config.js`: `base: process.env.VITE_BASE_PATH || '/'` (R29), eliminar
+- [X] T057 En `client/vite.config.js`: `base: process.env.VITE_BASE_PATH || '/'` (R29), eliminar
   `server.proxy` y conservar los plugins y `test: { environment: 'jsdom' }`.
-- [ ] T058 En el `package.json` raíz: eliminar `concurrently` y dejar los scripts
+- [X] T058 En el `package.json` raíz: eliminar `concurrently` y dejar los scripts
   `"dev": "npm run dev --prefix client"`, `"build": "npm run build --prefix client"`,
   `"preview": "npm run preview --prefix client"` y `"test": "npm test --prefix client"`. Ejecutar
   `npm install` en la raíz para actualizar `package-lock.json`.
@@ -411,10 +411,10 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 **Purpose**: FR-008 (REST), FR-031, FR-032, FR-035. ⚠️ Bloquea las fases 11–13.
 
-- [ ] T059 [P] Crear `client/src/mocks/schema.js`, que exporta `typeDefs`: un template string con el
+- [X] T059 [P] Crear `client/src/mocks/schema.js`, que exporta `typeDefs`: un template string con el
   contenido íntegro de `contracts/schema.graphql` v3 (sin `Query.destinos`, `Usuario` ni `login`;
   `Vuelo` y `Hotel` con fechas y disponibilidad).
-- [ ] T060 [P] Crear `client/src/mocks/catalogo.js` con el arreglo `catalogo` y sus ayudantes,
+- [X] T060 [P] Crear `client/src/mocks/catalogo.js` con el arreglo `catalogo` y sus ayudantes,
   copiados de `server/src/mocks.js` de v1 (mismos ids, nombres y precios, sin `usuarioMock`).
   Ampliar los ayudantes con los campos de `data-model.md` v3:
   - `vuelo(..., fechaIda, fechaVuelta, cupos)`: "ISO", "posterior a `fechaIda`" y cupos
@@ -423,14 +423,14 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
     `disponibleDesde`" y habitaciones "Informativo, de 1 a 40".
   - "Todas en 2027. Cada vuelo dura entre 4 y 10 días. El rango de cada hotel cubre al menos las
     fechas de los vuelos de su destino."
-- [ ] T061 [P] Crear `client/src/mocks/persistencia.js` (R16):
+- [X] T061 [P] Crear `client/src/mocks/persistencia.js` (R16):
   - Constante `CLAVE = 'viajex:reservas'`.
   - `cargarReservas()`: devuelve el arreglo guardado, o `[]` si no existe, no es un arreglo o hay
     cualquier error.
   - `guardarReservas(lista)`: `localStorage.setItem` dentro de `try/catch`, ignorando errores.
   - Formato: `{ id, destinoId, vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso,
     total }`.
-- [ ] T062 Crear `client/src/mocks/resolvers.js`, adaptando los resolvers de `server/src/mocks.js` de
+- [X] T062 Crear `client/src/mocks/resolvers.js`, adaptando los resolvers de `server/src/mocks.js` de
   v1:
   - `crearStore(schema)`:
     - Carga `catalogo` en `Query.ROOT.destinos` (lista interna usada por los resolvers aunque no
@@ -446,20 +446,20 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
     - IDs con `crypto.randomUUID()` del navegador.
   - Exportar también `listadoDestinos()`: la proyección de `catalogo` a
     `{ id, nombre, imagen, pais, actividadesPopulares }` (`contracts/rest.md`).
-- [ ] T063 Crear `client/src/mocks/handlers.js` (R22), que exporta `handlers`:
+- [X] T063 Crear `client/src/mocks/handlers.js` (R22), que exporta `handlers`:
   - `http.get('*/api/destinos', () => HttpResponse.json(listadoDestinos()))`.
   - `graphql.operation(async ({ query, variables }) => HttpResponse.json(await graphqlEjecutar(
     { schema: esquema, source: query, variableValues: variables })))`, donde
     `esquema = addMocksToSchema({ schema: base, store: crearStore(base), resolvers })`,
     `base = makeExecutableSchema({ typeDefs })` y `graphqlEjecutar` es `graphql` de la librería
     `graphql`.
-- [ ] T064 Crear `client/src/mocks/browser.js`: `export const worker = setupWorker(...handlers)`
+- [X] T064 Crear `client/src/mocks/browser.js`: `export const worker = setupWorker(...handlers)`
   (convención de MSW).
-- [ ] T065 En `client/src/main.jsx`:
+- [X] T065 En `client/src/main.jsx`:
   - Antes de renderizar, `await worker.start({ serviceWorker: { url:
     `${import.meta.env.BASE_URL}mockServiceWorker.js` }, onUnhandledRequest: 'bypass', quiet: true })`.
   - Pasar `basename={import.meta.env.BASE_URL}` a `BrowserRouter`.
-- [ ] T066 Reescribir `client/src/lib/api.js` (R24):
+- [X] T066 Reescribir `client/src/lib/api.js` (R24):
   - `solicitar(ruta, opciones)`: hace `fetch(`${import.meta.env.BASE_URL}${ruta}`, opciones)`. Si
     la petición se cancela, relanza el error (`AbortError`). Ante un fallo de red o una respuesta
     no OK, lanza el mensaje de conexión. Devuelve el JSON.
@@ -467,7 +467,7 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
     hay `errors`, lanza el mensaje GraphQL genérico.
   - `obtenerJSON(ruta, { signal } = {})`: GET mediante `solicitar`.
   - Los mensajes amigables no cambian (`contracts/ui-rutas.md`).
-- [ ] T067 Eliminar el directorio `server/` completo (su catálogo ya está en T060).
+- [X] T067 Eliminar el directorio `server/` completo (su catálogo ya está en T060).
 
 **Checkpoint**: `npm run dev` en `http://localhost:5173/` responde `/api/destinos` y `/graphql`
 sin servidor; las pruebas siguen en verde.

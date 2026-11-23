@@ -4,10 +4,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp dist/index.html dist/404.html",
+    "preview": "vite preview",
     "test": "vitest run"
   },
   "dependencies": {
+    "@graphql-tools/mock": "^9.1.18",
+    "@graphql-tools/schema": "^10.1.5",
+    "graphql": "^16.15.0",
+    "msw": "^2.15.0",
     "react": "^19",
     "react-dom": "^19",
     "react-router": "^7"
@@ -21,5 +26,10 @@
     "tailwindcss": "^4",
     "vite": "^7",
     "vitest": "^3"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
