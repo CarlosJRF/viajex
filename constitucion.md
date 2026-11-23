@@ -105,8 +105,8 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
 - **Precio:** el total es la suma de los precios de sus ítems y se recalcula al modificarla. La
   regla exacta de cálculo (por ejemplo, si el precio se multiplica por pasajero) se define en
   `spec.md`.
-- **Modificar:** se puede cambiar el vuelo u hotel elegido, agregar o quitar tours y ajustar el
-  número de pasajeros. El destino NO se puede cambiar.
+- **Modificar:** se puede cambiar el vuelo u hotel elegido, agregar o quitar tours, ajustar el
+  número de pasajeros y cambiar las fechas de salida y regreso. El destino NO se puede cambiar.
 - **Eliminar:** el usuario puede eliminar una reserva.
 - **Persistencia:** crear, modificar y eliminar reservas se hace con mutations GraphQL sobre el
   store mock. Las reservas sobreviven a recargar el front, pero se pierden al reiniciar el
@@ -180,4 +180,4 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 - **Revisión de cumplimiento:** cada fase del flujo SDD (spec, plan, tasks, implementación) DEBE
   verificar el cumplimiento de esta constitución antes de aprobarse.
 
-**Version**: 1.0.1 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
+**Version**: 1.1.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
