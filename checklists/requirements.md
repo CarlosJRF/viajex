@@ -31,6 +31,9 @@
 
 ## Notes
 
+- Iteración 3 (spec v2, constitución v2.0.0): sin login, mock en el navegador, `localStorage` y
+  GitHub Pages. Los 16 puntos se revisaron otra vez y siguen cumpliéndose; los requisitos eliminados
+  conservan su ID para la trazabilidad.
 - Iteración 2. Q1 resuelta (opción B): las fechas de una reserva se pueden modificar. La
   constitución se enmendó a v1.1.0 para permitirlo.
 - Excepción aprobada por el usuario: los requisitos mencionan el stack (mutations GraphQL,
