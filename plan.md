@@ -4,7 +4,7 @@
 
 **Input**: Especificación de la feature en `spec.md` v3 (raíz), con `constitucion.md` v2.1.0
 
-**Versión del plan**: 3.0.0 (ver Historial de versiones)
+**Versión del plan**: 3.0.1 (ver Historial de versiones)
 
 **Note**: This template is filled in by the `/speckit-plan` command; its definition describes the execution workflow.
 
@@ -204,3 +204,4 @@ resolvers, endpoints (`handlers.js`) y arranque del worker (`browser.js`).
 | 1.0.1 | v1.1.0 / v1 | Agrega `@testing-library/dom` a las dependencias de soporte |
 | 2.0.0 | v2.0.0 / v2 | Mock GraphQL en el navegador con MSW, sin servidor ni login, reservas en `localStorage`, base `/viajex/` y publicación en GitHub Pages (R14–R21) |
 | 3.0.0 | v2.1.0 / v3 | REST `GET /api/destinos`, `browser.js`/`handlers.js`, fechas y disponibilidad informativas, `useConsulta` con `AbortController`, 404, `NavLink`, roles de accesibilidad, responsividad, `VITE_BASE_PATH`, Actions → `gh-pages`, README y matriz de navegadores (R22–R32) |
+| 3.0.1 | v2.1.0 / v3 | `quickstart.md`: la vista previa también usa `VITE_BASE_PATH=/viajex/` (detectado en T083) |
