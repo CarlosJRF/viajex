@@ -343,16 +343,16 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 ### Implementation for User Story 5
 
-- [ ] T048 [US5] En `server/src/mocks.js`, agregar `Mutation.eliminarReserva(id, usuarioId)`:
+- [X] T048 [US5] En `server/src/mocks.js`, agregar `Mutation.eliminarReserva(id, usuarioId)`:
   - Lanza `GraphQLError` si la reserva no existe o es de otro usuario.
   - Quita su referencia de `Query.ROOT.reservas` y devuelve `id`.
-- [ ] T049 [US5] En `client/src/graphql/reservas.js`, agregar `ELIMINAR_RESERVA`:
+- [X] T049 [US5] En `client/src/graphql/reservas.js`, agregar `ELIMINAR_RESERVA`:
   `eliminarReserva(id: $id, usuarioId: $usuarioId)`.
-- [ ] T050 [US5] En `client/src/pages/PaginaReservas.jsx`:
+- [X] T050 [US5] En `client/src/pages/PaginaReservas.jsx`:
   - Pasar `alEliminar` a cada `TarjetaReserva`.
   - `alEliminar` pide `window.confirm('¿Eliminar esta reserva?')`. Si se acepta, llama a
     `ELIMINAR_RESERVA` y quita la reserva del estado (R13).
-- [ ] T051 [US5] En `client/src/pages/PaginaReserva.jsx`, agregar el botón "Eliminar reserva".
+- [X] T051 [US5] En `client/src/pages/PaginaReserva.jsx`, agregar el botón "Eliminar reserva".
   Pide la misma confirmación, llama a `ELIMINAR_RESERVA` y navega a `/reservas`.
 
 **Checkpoint**: quickstart 15 y 16 pasan.
