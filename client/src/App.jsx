@@ -1,47 +1,23 @@
-import { useState } from 'react'
-import { Route, Routes, useNavigate } from 'react-router'
+import { Route, Routes } from 'react-router'
 import BarraNavegacion from './components/BarraNavegacion.jsx'
 import PaginaInicio from './pages/PaginaInicio.jsx'
 import PaginaDestino from './pages/PaginaDestino.jsx'
-import PaginaLogin from './pages/PaginaLogin.jsx'
 import PaginaReservas from './pages/PaginaReservas.jsx'
 import PaginaReserva from './pages/PaginaReserva.jsx'
-import RutaProtegida from './components/RutaProtegida.jsx'
+import PaginaNoEncontrada from './pages/PaginaNoEncontrada.jsx'
 
-// Raíz de la app: la sesión vive solo en memoria y se pierde al recargar
+// Raíz de la app: todas las rutas son públicas
 export default function App() {
-  const [usuario, setUsuario] = useState(null)
-  const navigate = useNavigate()
-
-  const cerrarSesion = () => {
-    setUsuario(null)
-    navigate('/')
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
-      <BarraNavegacion usuario={usuario} alCerrarSesion={cerrarSesion} />
+      <BarraNavegacion />
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Routes>
           <Route path="/" element={<PaginaInicio />} />
-          <Route path="/destinos/:id" element={<PaginaDestino usuario={usuario} />} />
-          <Route path="/login" element={<PaginaLogin alIniciarSesion={setUsuario} />} />
-          <Route
-            path="/reservas"
-            element={
-              <RutaProtegida usuario={usuario}>
-                <PaginaReservas usuario={usuario} />
-              </RutaProtegida>
-            }
-          />
-          <Route
-            path="/reservas/:id"
-            element={
-              <RutaProtegida usuario={usuario}>
-                <PaginaReserva usuario={usuario} />
-              </RutaProtegida>
-            }
-          />
+          <Route path="/destinos/:id" element={<PaginaDestino />} />
+          <Route path="/reservas" element={<PaginaReservas />} />
+          <Route path="/reservas/:id" element={<PaginaReserva />} />
+          <Route path="*" element={<PaginaNoEncontrada />} />
         </Routes>
       </main>
     </div>

@@ -3,8 +3,8 @@ import { CAMPOS_OPCIONES } from './destinos.js'
 // Operaciones de reservas como texto GraphQL
 
 export const RESERVAS = `
-  query Reservas($usuarioId: ID!) {
-    reservas(usuarioId: $usuarioId) {
+  query Reservas {
+    reservas {
       id
       pasajeros
       fechaSalida
@@ -44,19 +44,19 @@ const CAMPOS_RESERVA = `
 `
 
 export const RESERVA = `
-  query Reserva($id: ID!, $usuarioId: ID!) {
-    reserva(id: $id, usuarioId: $usuarioId) { ${CAMPOS_RESERVA} }
+  query Reserva($id: ID!) {
+    reserva(id: $id) { ${CAMPOS_RESERVA} }
   }
 `
 
 export const ACTUALIZAR_RESERVA = `
-  mutation ActualizarReserva($id: ID!, $usuarioId: ID!, $cambios: ReservaCambios!) {
-    actualizarReserva(id: $id, usuarioId: $usuarioId, cambios: $cambios) { ${CAMPOS_RESERVA} }
+  mutation ActualizarReserva($id: ID!, $cambios: ReservaCambios!) {
+    actualizarReserva(id: $id, cambios: $cambios) { ${CAMPOS_RESERVA} }
   }
 `
 
 export const ELIMINAR_RESERVA = `
-  mutation EliminarReserva($id: ID!, $usuarioId: ID!) {
-    eliminarReserva(id: $id, usuarioId: $usuarioId)
+  mutation EliminarReserva($id: ID!) {
+    eliminarReserva(id: $id)
   }
 `

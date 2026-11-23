@@ -478,20 +478,20 @@ sin servidor; las pruebas siguen en verde.
 
 **Purpose**: dejar toda la app pública (R20)
 
-- [ ] T068 Eliminar `client/src/pages/PaginaLogin.jsx`, `client/src/components/RutaProtegida.jsx` y
+- [X] T068 Eliminar `client/src/pages/PaginaLogin.jsx`, `client/src/components/RutaProtegida.jsx` y
   `client/src/graphql/sesion.js`.
-- [ ] T069 En `client/src/graphql/reservas.js`, quitar `$usuarioId` y `usuarioId` de `RESERVAS`,
+- [X] T069 En `client/src/graphql/reservas.js`, quitar `$usuarioId` y `usuarioId` de `RESERVAS`,
   `RESERVA`, `ACTUALIZAR_RESERVA` y `ELIMINAR_RESERVA`. En `client/src/graphql/destinos.js`,
   eliminar `DESTINOS` (R23) y agregar a `CAMPOS_OPCIONES` los campos `fechaIda fechaVuelta cupos` en
   vuelos y `disponibleDesde disponibleHasta habitacionesDisponibles` en hoteles.
-- [ ] T070 En `client/src/App.jsx`:
+- [X] T070 En `client/src/App.jsx`:
   - Quitar el estado `usuario`, `cerrarSesion`, `useNavigate`, la ruta `/login` y los envoltorios
     `RutaProtegida`.
   - Las páginas ya no reciben `usuario`.
   - Agregar `<Route path="*" element={<PaginaNoEncontrada />} />` (FR-036).
-- [ ] T071 [P] Crear `client/src/pages/PaginaNoEncontrada.jsx`: "No encontramos esta página." con un
+- [X] T071 [P] Crear `client/src/pages/PaginaNoEncontrada.jsx`: "No encontramos esta página." con un
   enlace "Volver al inicio" a `/` (FR-036).
-- [ ] T072 [P] En `client/src/components/BarraNavegacion.jsx`:
+- [X] T072 [P] En `client/src/components/BarraNavegacion.jsx`:
   - Sin props; enlace "Viajex" a `/`.
   - `NavLink` "Mis reservas" a `/reservas` con estilo activo
     (`className={({ isActive }) => ...}`) (FR-037).
