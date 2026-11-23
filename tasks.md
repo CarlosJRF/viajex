@@ -15,9 +15,14 @@ Library y únicamente en el cliente. No hay pruebas del servidor mock ni E2E.
 
 **Organization**: las tareas se agrupan por historia de usuario (US1–US6 = P1–P6 de `spec.md`).
 
-**Versión 2** (constitución v2.0.0, spec v2, plan v2.0.0): las fases 1–8 (T001–T054) son la
-implementación v1 ya completada y se conservan para la trazabilidad. Las fases 9–13 (T055–T075)
-migran a la v2: mock en el navegador, sin login, `localStorage` y GitHub Pages.
+**Versión 3** (constitución v2.1.0, spec v3, plan v3.0.0):
+- Las fases 1–8 (T001–T054) son la implementación v1, ya completada; se conservan para la
+  trazabilidad.
+- Las fases 9–16 (T055–T093) migran a la v3: REST + GraphQL con MSW en el navegador, sin login,
+  `localStorage`, fechas y disponibilidad informativas, mejoras de interfaz, Actions → `gh-pages`,
+  README y navegadores.
+- El bloque v2 (T055–T075 de la versión 2 de este archivo) nunca se ejecutó y queda reemplazado;
+  su texto se conserva en el historial de la rama `tasks`.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -380,133 +385,233 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 ---
 
-## Phase 9: Setup v2 (Shared Infrastructure)
+## Phase 9: Setup v3 (Shared Infrastructure)
 
-**Purpose**: dejar el proyecto como una app estática sin servidor (plan v2, R14, R17, R18)
+**Purpose**: dejar el proyecto como una app estática sin servidor (R14, R18, R29)
 
-- [ ] T055 En `client/package.json`, agregar a `dependencies`: `msw@^2`, `graphql@^16`,
-  `@graphql-tools/mock@^9` y `@graphql-tools/schema@^10`. Cambiar el script `build` a
-  `"vite build && cp dist/index.html dist/404.html"` (R18) y agregar `"preview": "vite preview"`.
-  Ejecutar `npm install` en `client/`.
-- [ ] T056 Ejecutar `npx msw init public --save` dentro de `client/`. Debe generar
-  `client/public/mockServiceWorker.js` y agregar `"msw": { "workerDirectory": ["public"] }` en
+- [ ] T055 En `client/package.json`:
+  - Agregar a `dependencies`: `msw@^2`, `graphql@^16`, `@graphql-tools/mock@^9` y
+    `@graphql-tools/schema@^10`.
+  - Cambiar `build` a `"vite build && cp dist/index.html dist/404.html"` (R18) y agregar
+    `"preview": "vite preview"`.
+  - Ejecutar `npm install` en `client/`.
+- [ ] T056 Ejecutar `npx msw init public --save` dentro de `client/`: genera
+  `client/public/mockServiceWorker.js` y agrega `"msw": { "workerDirectory": ["public"] }` a
   `client/package.json`. Crear `client/public/.nojekyll` vacío (R18).
-- [ ] T057 En `client/vite.config.js`: agregar `base: '/viajex/'`, eliminar `server.proxy` y
-  conservar los plugins y `test: { environment: 'jsdom' }` (R17).
+- [ ] T057 En `client/vite.config.js`: `base: process.env.VITE_BASE_PATH || '/'` (R29), eliminar
+  `server.proxy` y conservar los plugins y `test: { environment: 'jsdom' }`.
 - [ ] T058 En el `package.json` raíz: eliminar `concurrently` y dejar los scripts
   `"dev": "npm run dev --prefix client"`, `"build": "npm run build --prefix client"`,
   `"preview": "npm run preview --prefix client"` y `"test": "npm test --prefix client"`. Ejecutar
   `npm install` en la raíz para actualizar `package-lock.json`.
-- [ ] T059 Eliminar el directorio `server/` completo (R14). Su catálogo se mueve en T061.
 
 ---
 
-## Phase 10: Foundational v2 — API GraphQL mock en el navegador
+## Phase 10: Foundational v3 — API mock REST + GraphQL en el navegador
 
-**Purpose**: FR-031 y FR-032. ⚠️ Bloquea las fases 11 y 12.
+**Purpose**: FR-008 (REST), FR-031, FR-032, FR-035. ⚠️ Bloquea las fases 11–13.
 
-- [ ] T060 [P] Crear `client/src/mocks/schema.js`, que exporta `typeDefs`: un template string con el
-  contenido íntegro de `contracts/schema.graphql` v2 (sin `Usuario`, `login` ni `usuarioId`).
-- [ ] T061 [P] Crear `client/src/mocks/catalogo.js` con el arreglo `catalogo` y sus ayudantes
-  (`actividad`, `vuelo`, `hotel`, `tour`, `imagen`), copiados sin cambios de los datos de
-  `server/src/mocks.js` de v1 (mismos ids y precios). No incluye `usuarioMock`.
-- [ ] T062 [P] Crear `client/src/mocks/persistencia.js` (R16):
+- [ ] T059 [P] Crear `client/src/mocks/schema.js`, que exporta `typeDefs`: un template string con el
+  contenido íntegro de `contracts/schema.graphql` v3 (sin `Query.destinos`, `Usuario` ni `login`;
+  `Vuelo` y `Hotel` con fechas y disponibilidad).
+- [ ] T060 [P] Crear `client/src/mocks/catalogo.js` con el arreglo `catalogo` y sus ayudantes,
+  copiados de `server/src/mocks.js` de v1 (mismos ids, nombres y precios, sin `usuarioMock`).
+  Ampliar los ayudantes con los campos de `data-model.md` v3:
+  - `vuelo(..., fechaIda, fechaVuelta, cupos)`: "ISO", "posterior a `fechaIda`" y cupos
+    "Informativo, de 1 a 60".
+  - `hotel(..., disponibleDesde, disponibleHasta, habitacionesDisponibles)`: "ISO", "posterior a
+    `disponibleDesde`" y habitaciones "Informativo, de 1 a 40".
+  - "Todas en 2027. Cada vuelo dura entre 4 y 10 días. El rango de cada hotel cubre al menos las
+    fechas de los vuelos de su destino."
+- [ ] T061 [P] Crear `client/src/mocks/persistencia.js` (R16):
   - Constante `CLAVE = 'viajex:reservas'`.
-  - `cargarReservas()`: lee y parsea la clave; devuelve el arreglo, o `[]` si no existe, no es un
-    arreglo o lanza cualquier error.
-  - `guardarReservas(lista)`: `localStorage.setItem(CLAVE, JSON.stringify(lista))` dentro de
-    `try/catch`, ignorando errores.
-  - Formato de cada elemento: `{ id, destinoId, vueloId, hotelId, tourIds, pasajeros,
-    fechaSalida, fechaRegreso, total }`.
-- [ ] T063 Crear `client/src/mocks/resolvers.js`, adaptando los resolvers de `server/src/mocks.js`
-  de v1:
-  - `crearStore(schema)`: `createMockStore({ schema })`; carga `catalogo` en `Query.ROOT.destinos`
-    y `[]` en `Query.ROOT.reservas`; luego inserta cada reserva de `cargarReservas()` cuyas
-    opciones sean válidas para su destino, conservando su `id` (si no son válidas, la omite).
+  - `cargarReservas()`: devuelve el arreglo guardado, o `[]` si no existe, no es un arreglo o hay
+    cualquier error.
+  - `guardarReservas(lista)`: `localStorage.setItem` dentro de `try/catch`, ignorando errores.
+  - Formato: `{ id, destinoId, vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso,
+    total }`.
+- [ ] T062 Crear `client/src/mocks/resolvers.js`, adaptando los resolvers de `server/src/mocks.js` de
+  v1:
+  - `crearStore(schema)`:
+    - Carga `catalogo` en `Query.ROOT.destinos` (lista interna usada por los resolvers aunque no
+      se exponga en el esquema) y `[]` en `Query.ROOT.reservas`.
+    - Inserta cada reserva de `cargarReservas()` cuyas opciones sean válidas para su destino,
+      conservando su `id`.
   - `crearResolvers(store)`:
-    - `Query.destinos`, `Query.destino(id)`, `Query.reservas` (todas las de la lista) y
-      `Query.reserva(id)` (`null` si no está en la lista).
-    - `Mutation.crearReserva(datos)`, `Mutation.actualizarReserva(id, cambios)` y
-      `Mutation.eliminarReserva(id)`, con las mismas validaciones de v1 (`GraphQLError` si el
-      destino, las opciones o la reserva no existen), sin `usuarioId` ni `login`.
-    - Después de cada mutation exitosa: `guardarReservas(serializar(store))`, donde `serializar`
-      convierte la lista `Query.ROOT.reservas` al formato de T062.
-  - Usar `crypto.randomUUID()` del navegador (sin importar `node:crypto`).
-- [ ] T064 Crear `client/src/mocks/navegador.js` (R15):
-  - `esquema = addMocksToSchema({ schema: makeExecutableSchema({ typeDefs }), store, resolvers })`,
-    con `store = crearStore(...)` sobre el esquema base.
-  - Exporta `worker = setupWorker(graphql.operation(async ({ query, variables }) =>
-    HttpResponse.json(await graphqlEjecutar({ schema: esquema, source: query, variableValues:
-    variables }))))`, donde `graphqlEjecutar` es `graphql` de la librería `graphql` importado con
-    ese alias.
+    - `Query.destino(id)`, `Query.reservas` y `Query.reserva(id)` (`null` si no está en la lista).
+    - `Mutation.crearReserva`, `Mutation.actualizarReserva(id, cambios)` y
+      `Mutation.eliminarReserva(id)`, con las validaciones de v1 (`GraphQLError`), sin
+      `usuarioId` ni `login`.
+    - Tras cada mutation exitosa, `guardarReservas(serializar(store))`.
+    - IDs con `crypto.randomUUID()` del navegador.
+  - Exportar también `listadoDestinos()`: la proyección de `catalogo` a
+    `{ id, nombre, imagen, pais, actividadesPopulares }` (`contracts/rest.md`).
+- [ ] T063 Crear `client/src/mocks/handlers.js` (R22), que exporta `handlers`:
+  - `http.get('*/api/destinos', () => HttpResponse.json(listadoDestinos()))`.
+  - `graphql.operation(async ({ query, variables }) => HttpResponse.json(await graphqlEjecutar(
+    { schema: esquema, source: query, variableValues: variables })))`, donde
+    `esquema = addMocksToSchema({ schema: base, store: crearStore(base), resolvers })`,
+    `base = makeExecutableSchema({ typeDefs })` y `graphqlEjecutar` es `graphql` de la librería
+    `graphql`.
+- [ ] T064 Crear `client/src/mocks/browser.js`: `export const worker = setupWorker(...handlers)`
+  (convención de MSW).
 - [ ] T065 En `client/src/main.jsx`:
   - Antes de renderizar, `await worker.start({ serviceWorker: { url:
     `${import.meta.env.BASE_URL}mockServiceWorker.js` }, onUnhandledRequest: 'bypass', quiet: true })`.
-  - Pasar `basename={import.meta.env.BASE_URL}` a `BrowserRouter` (R17).
-- [ ] T066 En `client/src/lib/api.js`, cambiar la URL de `fetch` a
-  `` `${import.meta.env.BASE_URL}graphql` `` (R17). Los mensajes amigables no cambian.
+  - Pasar `basename={import.meta.env.BASE_URL}` a `BrowserRouter`.
+- [ ] T066 Reescribir `client/src/lib/api.js` (R24):
+  - `solicitar(ruta, opciones)`: hace `fetch(`${import.meta.env.BASE_URL}${ruta}`, opciones)`. Si
+    la petición se cancela, relanza el error (`AbortError`). Ante un fallo de red o una respuesta
+    no OK, lanza el mensaje de conexión. Devuelve el JSON.
+  - `consultar(query, variables = {}, { signal } = {})`: POST a `graphql` mediante `solicitar`; si
+    hay `errors`, lanza el mensaje GraphQL genérico.
+  - `obtenerJSON(ruta, { signal } = {})`: GET mediante `solicitar`.
+  - Los mensajes amigables no cambian (`contracts/ui-rutas.md`).
+- [ ] T067 Eliminar el directorio `server/` completo (su catálogo ya está en T060).
 
-**Checkpoint**: `npm run dev` y abrir `http://localhost:5173/viajex/` muestra los 5 destinos sin
-servidor; las pruebas siguen en verde.
+**Checkpoint**: `npm run dev` en `http://localhost:5173/` responde `/api/destinos` y `/graphql`
+sin servidor; las pruebas siguen en verde.
 
 ---
 
 ## Phase 11: Eliminar el login (FR-001 a FR-007 y FR-016 eliminados en v2)
 
-**Purpose**: dejar toda la app pública (constitución v2.0.0, § Sesión; R20)
+**Purpose**: dejar toda la app pública (R20)
 
-- [ ] T067 Eliminar `client/src/pages/PaginaLogin.jsx`, `client/src/components/RutaProtegida.jsx` y
+- [ ] T068 Eliminar `client/src/pages/PaginaLogin.jsx`, `client/src/components/RutaProtegida.jsx` y
   `client/src/graphql/sesion.js`.
-- [ ] T068 En `client/src/graphql/reservas.js`, quitar `$usuarioId` y `usuarioId` de `RESERVAS`,
-  `RESERVA`, `ACTUALIZAR_RESERVA` y `ELIMINAR_RESERVA`, según `contracts/schema.graphql` v2.
-- [ ] T069 En `client/src/App.jsx`: quitar el estado `usuario`, `cerrarSesion`, `useNavigate`, la ruta
-  `/login` y los envoltorios `RutaProtegida`; las rutas `/reservas` y `/reservas/:id` quedan
-  públicas, y las páginas ya no reciben `usuario`.
-- [ ] T070 [P] En `client/src/components/BarraNavegacion.jsx`: sin props; muestra el enlace "Viajex"
-  a `/` y, siempre, el enlace "Mis reservas" a `/reservas`.
-- [ ] T071 [P] En `client/src/pages/PaginaDestino.jsx`: quitar la prop `usuario`, la redirección
-  al login y el estado inicial desde `location.state` (`seleccion` parte de `seleccionVacia`).
-  `confirmar` siempre llama a `CREAR_RESERVA` con `{ destinoId: id, ...datos, total }` y navega a
-  `/reservas` (FR-015).
-- [ ] T072 [P] En `client/src/pages/PaginaReservas.jsx` y `client/src/pages/PaginaReserva.jsx`: quitar
-  la prop `usuario` y el argumento `usuarioId` de todas las operaciones.
+- [ ] T069 En `client/src/graphql/reservas.js`, quitar `$usuarioId` y `usuarioId` de `RESERVAS`,
+  `RESERVA`, `ACTUALIZAR_RESERVA` y `ELIMINAR_RESERVA`. En `client/src/graphql/destinos.js`,
+  eliminar `DESTINOS` (R23) y agregar a `CAMPOS_OPCIONES` los campos `fechaIda fechaVuelta cupos` en
+  vuelos y `disponibleDesde disponibleHasta habitacionesDisponibles` en hoteles.
+- [ ] T070 En `client/src/App.jsx`:
+  - Quitar el estado `usuario`, `cerrarSesion`, `useNavigate`, la ruta `/login` y los envoltorios
+    `RutaProtegida`.
+  - Las páginas ya no reciben `usuario`.
+  - Agregar `<Route path="*" element={<PaginaNoEncontrada />} />` (FR-036).
+- [ ] T071 [P] Crear `client/src/pages/PaginaNoEncontrada.jsx`: "No encontramos esta página." con un
+  enlace "Volver al inicio" a `/` (FR-036).
+- [ ] T072 [P] En `client/src/components/BarraNavegacion.jsx`:
+  - Sin props; enlace "Viajex" a `/`.
+  - `NavLink` "Mis reservas" a `/reservas` con estilo activo
+    (`className={({ isActive }) => ...}`) (FR-037).
+  - `flex-wrap` para pantallas angostas (FR-040).
 
 **Checkpoint**: no queda ninguna referencia a `usuario`, `login` ni `RutaProtegida` en `client/src`.
 
 ---
 
-## Phase 12: Validación v2
+## Phase 12: Carga de datos, REST y disponibilidad (US1–US5)
 
-**Purpose**: comprobar FR-030 a FR-033 antes de publicar
+**Purpose**: FR-008, FR-010, FR-034, FR-038, FR-039
 
-- [ ] T073 Ejecutar `npm test` en la raíz: deben pasar los 11 casos de FR-030, sin cambios en las
-  pruebas.
-- [ ] T074 Recorrer los escenarios 1–18 de `quickstart.md` v2 en Chrome: los escenarios 1–17 con
-  `npm run dev` y el 18 con `npm run build` + `npm run preview`. Registrar cualquier fallo.
+- [ ] T073 Crear `client/src/lib/useConsulta.js` (R25): `useConsulta(cargar, dependencias)` devuelve
+  `{ cargando, error, datos, setDatos, reintentar }`.
+  - En cada ejecución crea un `AbortController` y llama a `cargar(signal)`; la limpieza del efecto
+    llama a `abort()`.
+  - Ignora los errores `AbortError`.
+  - Solo usa `useState` y `useEffect`.
+- [ ] T074 [US1] Reescribir `client/src/pages/PaginaInicio.jsx` con
+  `useConsulta((signal) => obtenerJSON('api/destinos', { signal }), [])`.
+  - El texto de carga lleva `role="status"`.
+  - Si hay error, muestra `MensajeError` con `alReintentar={reintentar}` (FR-008, FR-012, FR-038).
+- [ ] T075 [US1] En `client/src/pages/PaginaDestino.jsx`:
+  - Quitar la prop `usuario`, la redirección al login y el estado inicial desde
+    `location.state`.
+  - Cargar con `useConsulta((signal) => consultar(DESTINO, { id }, { signal }), [id])` y
+    `role="status"` en la carga.
+  - `confirmar` llama a `CREAR_RESERVA` con `{ destinoId: id, ...datos, total }` y navega a
+    `/reservas` (FR-015).
+- [ ] T076 [P] [US1] En `client/src/components/TarjetaVuelo.jsx`, mostrar "Ida dd/mm/aaaa · Vuelta
+  dd/mm/aaaa" con `formatearFecha` y "N cupos disponibles". En
+  `client/src/components/TarjetaHotel.jsx`, mostrar "Disponible del dd/mm/aaaa al dd/mm/aaaa" y
+  "N habitaciones disponibles" (FR-010).
+- [ ] T077 [US2] En `client/src/components/SelectorServicios.jsx`: al **seleccionar** un vuelo,
+  `cambiar({ vueloId: v.id, fechaSalida: v.fechaIda, fechaRegreso: v.fechaVuelta })`; al quitarlo,
+  solo `vueloId: null`, conservando las fechas (FR-034). Sin validaciones de disponibilidad
+  (FR-035).
+- [ ] T078 [US3] Reescribir la carga de `client/src/pages/PaginaReservas.jsx` con `useConsulta`, sin
+  la prop `usuario` ni `usuarioId`. Eliminar actualiza la lista con `setDatos`. La carga lleva
+  `role="status"`.
+- [ ] T079 [US4] Reescribir la carga de `client/src/pages/PaginaReserva.jsx` con `useConsulta`, sin
+  la prop `usuario` ni `usuarioId`. Al guardar, actualiza la reserva con `setDatos` y reinicia la
+  `seleccion`. La carga lleva `role="status"`.
+- [ ] T080 [P] Agregar `role="alert"` al contenedor de `client/src/components/MensajeError.jsx` y a
+  la lista de errores de `client/src/components/FormularioReserva.jsx` (FR-038).
+
+**Checkpoint**: `npm test` en verde; ninguna página repite el patrón `estado`/`intento`/`useEffect`.
 
 ---
 
-## Phase 13: Publicación (US6, FR-033)
+## Phase 13: Responsividad (FR-040)
 
-**Purpose**: publicar la demo en GitHub Pages (R19)
+- [ ] T081 Capturar inicio, destino (selector y formulario), reservas y detalle a 375, 768 y
+  1280 px. Corregir con clases de Tailwind lo que provoque desplazamiento horizontal o controles
+  inutilizables, por ejemplo, apilar el total y el botón de `FormularioReserva` en móvil (R31).
 
-- [ ] T075 [US6] Publicar `client/dist/` en la rama huérfana `gh-pages` con los comandos de
-  `quickstart.md` ("Publicación en GitHub Pages"). Activar Pages con origen `gh-pages` / root
-  (en Settings, o con `gh api repos/<dueño>/viajex/pages` previa confirmación del autor). Verificar
-  el escenario 19 en la URL publicada.
+---
+
+## Phase 14: Validación local
+
+- [ ] T082 Ejecutar `npm test` en la raíz: deben pasar los 11 casos de FR-030.
+- [ ] T083 Recorrer en Chrome los escenarios 1–5, 7–9 y 11–26 de `quickstart.md` v3: 1–17 y 20–26
+  con `npm run dev`, y 18 con `VITE_BASE_PATH=/viajex/ npm run build` + `npm run preview`.
+  Registrar cualquier fallo.
+
+---
+
+## Phase 15: Publicación (US6, FR-033, FR-041)
+
+- [ ] T084 [US6] Crear `.github/workflows/publicar.yml` según R30:
+  - `on: push` a `main` y `workflow_dispatch`; `permissions: contents: write`.
+  - Pasos: checkout, setup-node 20 con caché, `npm ci --prefix client`,
+    `npm test --prefix client`, y build con `VITE_BASE_PATH=/${{ github.event.repository.name }}/`.
+  - Subir `client/dist`: `git init -b gh-pages`, commit `deploy: ${{ github.sha }}` y
+    `git push --force` a `https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git`
+    `gh-pages`.
+- [ ] T085 [US6] Crear `README.md` en la raíz con:
+  - descripción;
+  - enlace a la demo publicada;
+  - instalación y scripts (`dev`, `test`, `build`, `preview`);
+  - estructura de carpetas;
+  - capturas (guardadas en `docs/capturas/`);
+  - la matriz de navegadores, vacía hasta T087 (FR-041).
+- [ ] T086 [US6] Hacer push a `main` y verificar que el workflow termine en verde. Activar Pages con
+  origen `gh-pages` / root: en Settings, o con `gh api` previa confirmación del autor. Verificar el
+  escenario 19 en `https://<usuario>.github.io/viajex/`.
+
+---
+
+## Phase 16: Pruebas en navegadores (FR-042)
+
+- [ ] T087 Recorrer el escenario 27 sobre la URL publicada en Chrome, Firefox y vista móvil emulada
+  con un script de apoyo fuera del proyecto (R32). Registrar en la matriz del README el resultado
+  y lo corregido. Dejar Edge y Safari como "Pendiente (autor)" hasta recibir sus resultados.
 
 ---
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies (v2)
+### Phase Dependencies (v3)
 
 - **Fases 1–8**: completadas en v1.
-- **Phase 9 (Setup v2)** → **Phase 10 (mock en el navegador)** → **Phase 11 (sin login)** →
-  **Phase 12 (validación)** → **Phase 13 (publicación)**.
-- Archivos compartidos en orden secuencial: `client/package.json` (T055 → T056) y
-  `client/src/App.jsx` (T069).
-- Paralelizables: T060, T061 y T062; luego T070, T071 y T072 (archivos distintos, tras T068 y T069).
+- **Orden de las fases v3**:
+  1. Phase 9 (setup).
+  2. Phase 10 (mock REST + GraphQL).
+  3. Phase 11 (sin login, 404 y barra).
+  4. Phase 12 (carga de datos y disponibilidad).
+  5. Phase 13 (responsividad).
+  6. Phase 14 (validación local).
+  7. Phase 15 (publicación).
+  8. Phase 16 (navegadores).
+- **Archivos compartidos en orden secuencial**:
+  - `client/package.json`: T055 → T056.
+  - `client/src/mocks/resolvers.js` antes de `handlers.js`: T062 → T063 → T064.
+  - Páginas: T070 antes de T074–T079.
+- **Paralelizables**:
+  - T059, T060 y T061.
+  - T071 y T072.
+  - T076 y T080.
 
 ### Phase Dependencies (v1)
 
