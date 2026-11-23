@@ -545,7 +545,7 @@ sin servidor; las pruebas siguen en verde.
 
 ## Phase 13: Responsividad (FR-040)
 
-- [ ] T081 Capturar inicio, destino (selector y formulario), reservas y detalle a 375, 768 y
+- [X] T081 Capturar inicio, destino (selector y formulario), reservas y detalle a 375, 768 y
   1280 px. Corregir con clases de Tailwind lo que provoque desplazamiento horizontal o controles
   inutilizables, por ejemplo, apilar el total y el botón de `FormularioReserva` en móvil (R31).
 
@@ -553,8 +553,8 @@ sin servidor; las pruebas siguen en verde.
 
 ## Phase 14: Validación local
 
-- [ ] T082 Ejecutar `npm test` en la raíz: deben pasar los 11 casos de FR-030.
-- [ ] T083 Recorrer en Chrome los escenarios 1–5, 7–9 y 11–26 de `quickstart.md` v3: 1–17 y 20–26
+- [X] T082 Ejecutar `npm test` en la raíz: deben pasar los 11 casos de FR-030.
+- [X] T083 Recorrer en Chrome los escenarios 1–5, 7–9 y 11–26 de `quickstart.md` v3: 1–17 y 20–26
   con `npm run dev`, y 18 con `VITE_BASE_PATH=/viajex/ npm run build` + `npm run preview`.
   Registrar cualquier fallo.
 
