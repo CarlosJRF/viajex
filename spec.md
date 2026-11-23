@@ -2,16 +2,18 @@
 
 **Feature Branch**: `spec` (directorio de la feature: raíz del proyecto, según `constitucion.md`)
 
-**Constitución**: v2.0.0
+**Constitución**: v2.1.0
 
 **Created**: 2026-11-23
 
-**Status**: Draft (versión 2)
+**Status**: Draft (versión 3)
 
 **Input**: Descripción del usuario: "Especificación: Sistema de reserva de vuelos y hoteles. Deriva de
 `constitucion.md` (v1.0.1). Describe el qué; el cómo va en `plan.md`." Versión 2: "Eliminar el login
 para la demo, usar una API GraphQL mock que funcione en GitHub Pages y conservar las reservas con
-localStorage."
+localStorage." Versión 3: "Listado de destinos por REST, fechas y disponibilidad informativas,
+página 404, mejoras de interfaz y accesibilidad, publicación con GitHub Actions y pruebas en varios
+navegadores."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -33,8 +35,9 @@ vuelos, hoteles y tours.
 2. **Given** la lista de destinos, **When** elige un destino, **Then** llega a su página
    (`/destinos/:id`) y ve el destino con su país y tres secciones: vuelos, hoteles y tours.
 3. **Given** la página de un destino, **When** revisa las secciones, **Then** cada vuelo muestra
-   aerolínea, horarios y precio por pasajero; cada hotel, nombre, categoría y precio por noche; y
-   cada tour, nombre, actividades incluidas y precio por persona.
+   aerolínea, horarios, fechas de ida y vuelta, cupos y precio por pasajero; cada hotel, nombre,
+   categoría, rango de fechas, habitaciones disponibles y precio por noche; y cada tour, nombre,
+   actividades incluidas y precio por persona.
 4. **Given** la página de un destino, **When** revisa las opciones, **Then** solo aparecen las que
    pertenecen a ese destino.
 5. **Given** un identificador de destino inexistente, **When** se abre su página, **Then** se
@@ -59,9 +62,13 @@ reservas" con el total correcto.
 1. **Given** la página de un destino, **When** elige un vuelo, un hotel y/o varios tours, indica
    pasajeros y fechas, **Then** ve el total calculado según las reglas de cálculo, actualizado
    en vivo.
-2. **Given** una selección válida, **When** confirma, **Then** la reserva se crea y el visitante
+2. **Given** la página de un destino, **When** elige un vuelo, **Then** las fechas de salida y
+   regreso se rellenan con las fechas de ida y vuelta de ese vuelo, y puede editarlas.
+3. **Given** un vuelo con menos cupos que los pasajeros indicados, **When** confirma, **Then** la
+   reserva se crea igual: la disponibilidad es solo informativa.
+4. **Given** una selección válida, **When** confirma, **Then** la reserva se crea y el visitante
    llega a "Mis reservas" (`/reservas`), donde aparece la nueva reserva.
-3. **Given** una selección inválida (ver FR-020 a FR-022), **When** intenta confirmar, **Then** ve
+5. **Given** una selección inválida (ver FR-020 a FR-022), **When** intenta confirmar, **Then** ve
    el mensaje de validación correspondiente y la reserva no se envía.
 
 ---
@@ -146,6 +153,14 @@ y recargar una página interna sin error.
    depender de ningún servidor propio.
 2. **Given** la demo publicada, **When** recarga directamente una ruta interna (por ejemplo
    `/destinos/d1` o `/reservas`), **Then** la página carga correctamente.
+3. **Given** cualquier página, **When** abre una ruta que no existe, **Then** ve una página "no
+   encontrada" con un enlace al inicio.
+4. **Given** la barra de navegación, **When** está en "Mis reservas", **Then** ese enlace se ve
+   activo.
+5. **Given** un teléfono (375 px), una tablet (768 px) o un escritorio (1280 px), **When** usa la
+   demo, **Then** todo se lee y se opera sin desplazamiento horizontal.
+6. **Given** Chrome, Firefox, Edge o Safari, **When** recorre la demo publicada, **Then** funciona
+   igual; lo verificado queda registrado en el README.
 
 ---
 
@@ -165,6 +180,12 @@ y recargar una página interna sin error.
 - Datos guardados ilegibles o almacenamiento del navegador no disponible (por ejemplo, navegación
   privada estricta): la app funciona igual, partiendo sin reservas guardadas.
 - Otro navegador u otro dispositivo: no ve las reservas de este navegador.
+- Más pasajeros que cupos del vuelo, o fechas fuera del rango del hotel: la reserva se permite; la
+  disponibilidad es informativa.
+- El visitante elige un vuelo después de escribir sus fechas: las fechas se reemplazan por las del
+  vuelo; quitar el vuelo no borra las fechas.
+- El visitante sale de una página antes de que termine la carga: la petición se cancela sin
+  mostrar errores.
 
 ## Requirements *(mandatory)*
 
@@ -178,12 +199,13 @@ y recargar una página interna sin error.
 **Exploración (F2, F3)**
 
 - **FR-008**: La página de inicio (`/`) DEBE listar todos los destinos con nombre, imagen, país y
-  actividades populares, en el orden del catálogo. El catálogo es de solo lectura y sale de los
-  datos del mock.
+  actividades populares, en el orden del catálogo, obtenidos con `fetch` del endpoint REST
+  `GET /api/destinos` (v3). El catálogo es de solo lectura y sale de los datos del mock.
 - **FR-009**: Cada destino DEBE enlazar a su página de detalle (`/destinos/:id`).
-- **FR-010**: La página de un destino DEBE mostrar el destino con su país y sus vuelos (aerolínea,
-  horarios, precio por pasajero), hoteles (nombre, categoría, precio por noche) y tours (nombre,
-  actividades incluidas, precio por persona), solo los de ese destino.
+- **FR-010**: La página de un destino DEBE mostrar, consultando el endpoint GraphQL, el destino con
+  su país y sus vuelos (aerolínea, horarios, fechas de ida y vuelta, cupos, precio por pasajero),
+  hoteles (nombre, categoría, rango de fechas, habitaciones disponibles, precio por noche) y tours
+  (nombre, actividades incluidas, precio por persona), solo los de ese destino.
 - **FR-011**: Ante un destino inexistente, el sistema DEBE mostrar un mensaje amigable y un enlace
   a la página de inicio.
 - **FR-012**: Si la carga de destinos falla, el sistema DEBE mostrar un mensaje amigable con una
@@ -249,8 +271,30 @@ y recargar una página interna sin error.
   ilegibles, la app DEBE funcionar igual, partiendo sin reservas.
 - **FR-032**: La API GraphQL mock DEBE funcionar dentro del navegador, atendiendo las peticiones
   `fetch` a `/graphql` sin ningún servidor propio.
-- **FR-033**: La demo DEBE publicarse como sitio estático en GitHub Pages, y cualquier ruta interna
-  DEBE cargar correctamente al abrirla o recargarla directamente.
+- **FR-033**: La demo DEBE publicarse como sitio estático en GitHub Pages desde la rama `gh-pages`,
+  que un workflow de GitHub Actions compila y actualiza (v3). La ruta base DEBE ser configurable
+  (`VITE_BASE_PATH`) y cualquier ruta interna DEBE cargar correctamente al abrirla o recargarla
+  directamente.
+
+**Disponibilidad, interfaz y documentación** — *nuevos en v3*
+
+- **FR-034**: Al elegir un vuelo (al crear o al modificar una reserva), las fechas de salida y
+  regreso DEBEN rellenarse con sus fechas de ida y vuelta; el visitante puede editarlas después.
+  Quitar el vuelo NO borra las fechas.
+- **FR-035**: Cupos, rango de fechas y habitaciones disponibles son informativos: NO DEBEN
+  descontarse al reservar ni impedir una reserva.
+- **FR-036**: Una ruta inexistente DEBE mostrar una página "no encontrada" con un enlace al inicio.
+- **FR-037**: La barra de navegación DEBE resaltar el enlace de la sección activa.
+- **FR-038**: Los mensajes de carga DEBEN anunciarse como estado (`role="status"`) y los mensajes
+  de error como alerta (`role="alert"`) para tecnologías de asistencia.
+- **FR-039**: Al salir de una página con una carga en curso, la petición DEBE cancelarse sin
+  mostrar errores ni actualizar una página que ya no está visible.
+- **FR-040**: La interfaz DEBE leerse y operarse sin desplazamiento horizontal en anchos de 375,
+  768 y 1280 px (barra, selector de servicios y formulario).
+- **FR-041**: El repositorio DEBE incluir un README con descripción, enlace a la demo publicada,
+  instalación, scripts, estructura, capturas y una matriz de navegadores probados.
+- **FR-042**: La demo publicada DEBE probarse en Chrome, Firefox, Edge, Safari (si hay acceso) y
+  vista móvil, y el README DEBE registrar qué se verificó y qué se corrigió.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -258,9 +302,10 @@ y recargar una página interna sin error.
 - **Destino**: lugar de viaje con nombre, imagen, país y actividades populares.
 - **Actividad**: experiencia puntual; forma parte de las actividades populares de un destino y de
   los tours.
-- **Vuelo**: opción de ida y vuelta hacia un destino, con aerolínea, horarios y precio por
-  pasajero.
-- **Hotel**: alojamiento en un destino, con nombre, categoría y precio por noche.
+- **Vuelo**: opción de ida y vuelta hacia un destino, con aerolínea, horarios, fechas de ida y
+  vuelta, cupos (informativos) y precio por pasajero.
+- **Hotel**: alojamiento en un destino, con nombre, categoría, rango de fechas, habitaciones
+  disponibles (informativas) y precio por noche.
 - **Tour**: paquete de un destino que agrupa actividades, con nombre y precio por persona.
 - **Reserva**: pertenece a un único destino y al navegador que la creó; agrupa como máximo un
   vuelo, como máximo un hotel y cero o más tours (al menos un ítem en total), con número de
@@ -286,6 +331,9 @@ y recargar una página interna sin error.
   tras recargar la página en el mismo navegador.
 - **SC-008**: La demo publicada permite completar el ciclo explorar → crear → ver → modificar →
   eliminar sin instalar nada ni depender de un servidor propio.
+- **SC-009**: En 375, 768 y 1280 px no aparece desplazamiento horizontal en ninguna página.
+- **SC-010**: La matriz del README registra el resultado del ciclo completo en al menos Chrome,
+  Firefox y vista móvil, más Edge y Safari cuando hay acceso.
 
 ## Assumptions
 
@@ -308,8 +356,10 @@ y recargar una página interna sin error.
 - **Sincronización entre dispositivos**: las reservas no se comparten entre navegadores (v2).
 - **Impresión de reservas**: no hay vista de impresión, exportación a PDF ni comprobantes.
 - **Cambio de destino**: para otro destino se elimina la reserva y se crea una nueva.
-- **Control de disponibilidad**: no hay cupos ni detección de sobreventa; toda reserva válida se
-  acepta.
+- **Control de disponibilidad**: cupos y habitaciones solo se muestran (v3); no se descuentan ni
+  hay detección de sobreventa; toda reserva válida se acepta.
+- **Simulación de latencia o de errores forzados**: no hay retrasos artificiales ni botones para
+  provocar errores (decisión v3).
 - **Cancelaciones con reglas**: eliminar solo borra; no hay penalidades, reembolsos ni estados como
   "cancelada".
 - **Búsqueda, filtros y ordenamiento**: listados completos en el orden del catálogo.
@@ -322,3 +372,4 @@ y recargar una página interna sin error.
 |---|---|---|
 | 1 | v1.1.0 | Versión inicial: login simulado, servidor Apollo mock y reservas en memoria del servidor |
 | 2 | v2.0.0 | Se elimina el login (FR-001 a FR-007 y FR-016). FR-025 se reemplaza por FR-031 (`localStorage`). Se agregan FR-032 (mock en el navegador), FR-033 (GitHub Pages), US6, SC-007 y SC-008 |
+| 3 | v2.1.0 | FR-008 usa REST (`GET /api/destinos`); FR-010 agrega fechas y disponibilidad; FR-033 publica con Actions hacia `gh-pages` y base configurable. Nuevos FR-034 a FR-042 (fechas desde el vuelo, disponibilidad informativa, 404, enlace activo, accesibilidad, cancelación, responsividad, README y navegadores), SC-009 y SC-010 |

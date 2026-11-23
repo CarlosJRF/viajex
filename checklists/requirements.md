@@ -31,6 +31,8 @@
 
 ## Notes
 
+- Iteración 4 (spec v3, constitución v2.1.0): REST, disponibilidad informativa (D2-B), 404,
+  accesibilidad, responsividad, Actions, README y navegadores. Los 16 puntos siguen cumpliéndose.
 - Iteración 3 (spec v2, constitución v2.0.0): sin login, mock en el navegador, `localStorage` y
   GitHub Pages. Los 16 puntos se revisaron otra vez y siguen cumpliéndose; los requisitos eliminados
   conservan su ID para la trazabilidad.
