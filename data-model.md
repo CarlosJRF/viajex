@@ -2,6 +2,8 @@
 
 **Fecha**: 2026-11-23 | **Plan**: [plan.md](plan.md) | **Contrato**: [contracts/schema.graphql](contracts/schema.graphql)
 
+**Versión 3** (constitución v2.1.0): vuelos y hoteles con fechas y disponibilidad informativas;
+el listado de destinos se sirve por REST ([contracts/rest.md](contracts/rest.md)).
 **Versión 2** (constitución v2.0.0): sin `Usuario`; las reservas se respaldan en `localStorage`.
 
 Todas las entidades viven en memoria, en el store de `createMockStore` que corre en el navegador.
@@ -44,6 +46,9 @@ fechas son textos ISO `AAAA-MM-DD`.
 | aerolinea | String | |
 | horarioIda | String | `HH:MM` |
 | horarioVuelta | String | `HH:MM` |
+| fechaIda | String | ISO; rellena `fechaSalida` al elegir el vuelo (v3) |
+| fechaVuelta | String | ISO, posterior a `fechaIda`; rellena `fechaRegreso` (v3) |
+| cupos | Int | Informativo, de 1 a 60; no se descuenta (v3) |
 | precio | Int | CLP por pasajero, ida y vuelta |
 
 ### Hotel
@@ -52,6 +57,9 @@ fechas son textos ISO `AAAA-MM-DD`.
 | id | ID | |
 | nombre | String | |
 | categoria | Int | Estrellas, de 1 a 5 |
+| disponibleDesde | String | ISO; inicio del rango informativo (v3) |
+| disponibleHasta | String | ISO, posterior a `disponibleDesde` (v3) |
+| habitacionesDisponibles | Int | Informativo, de 1 a 40; no se descuenta (v3) |
 | precioNoche | Int | CLP por noche, no depende de los pasajeros |
 
 ### Tour
@@ -63,7 +71,10 @@ fechas son textos ISO `AAAA-MM-DD`.
 | precio | Int | CLP por persona |
 
 **Catálogo mínimo**: 5 destinos de países distintos; cada uno con 2 o 3 vuelos, 2 o 3 hoteles y
-2 o 3 tours.
+2 o 3 tours. Los ids y precios de v1 se mantienen.
+
+**Fechas del catálogo (v3)**: todas en 2027. Cada vuelo dura entre 4 y 10 días. El rango de cada
+hotel cubre al menos las fechas de los vuelos de su destino.
 
 ## Reserva (CRUD)
 

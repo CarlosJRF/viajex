@@ -5,6 +5,7 @@
 Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constitucion.md`.
 
 > **v2 (constitución v2.0.0, spec v2)**: R14–R21 agregan las decisiones del mock en el navegador.
+> **v3 (constitución v2.1.0, spec v3)**: R22–R32 agregan REST, disponibilidad, interfaz y Actions.
 > Las decisiones marcadas como *Reemplazada en v2* se conservan para la trazabilidad.
 
 ## R1. Versiones del stack (ajustada en v2: ver R14)
@@ -138,7 +139,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Alternatives considered**: un servidor Node en otro hosting (requiere cuenta externa y
   rompe la demo si el hosting se duerme).
 
-## R15. Mock GraphQL en el navegador con MSW
+## R15. Mock GraphQL en el navegador con MSW — *ajustada en v3 por R22 (archivos `browser.js` y `handlers.js`)*
 
 - **Decision**: `client/src/mocks/navegador.js` crea el esquema con `makeExecutableSchema`,
   el store con `createMockStore` y `addMocksToSchema`. Registra un `setupWorker` de MSW con
@@ -165,7 +166,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Alternatives considered**: IndexedDB (más complejo para unas pocas reservas);
   `sessionStorage` (se pierde al cerrar la pestaña).
 
-## R17. Endpoint y rutas bajo /viajex/
+## R17. Endpoint y rutas bajo /viajex/ — *ajustada en v3 por R29 (base configurable)*
 
 - **Decision**: `vite.config.js` usa `base: '/viajex/'`. `api.js` llama a
   `fetch(`${import.meta.env.BASE_URL}graphql`)` y `BrowserRouter` usa
@@ -182,7 +183,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Rationale**: es la solución estándar sin dependencias.
 - **Alternatives considered**: `HashRouter` (URLs con `#`, cambia todas las rutas del contrato).
 
-## R19. Publicación en la rama gh-pages
+## R19. Publicación en la rama gh-pages — *Reemplazada en v3 por R30 (GitHub Actions)*
 
 - **Decision**: se compila con `npm run build` y se publica el contenido de `client/dist/` como
   único contenido de la rama `gh-pages`, usando `git worktree` (ver `quickstart.md`). Pages se
@@ -202,3 +203,110 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 
 - **Decision**: las pruebas de FR-030 no cambian (11 casos). El mock y la persistencia no se
   prueban (constitución II).
+
+---
+
+# Decisiones v3 (constitución v2.1.0)
+
+## R22. Endpoint REST y archivos de MSW
+
+- **Decision**: `client/src/mocks/handlers.js` exporta `handlers` con dos manejadores:
+  - `http.get('*/api/destinos', ...)`: responde `HttpResponse.json(listado)`, donde `listado` es
+    la proyección del catálogo `{ id, nombre, imagen, pais: { id, nombre }, actividadesPopulares }`.
+  - `graphql.operation(...)`: ejecuta el esquema mockeado como en R15.
+  `client/src/mocks/browser.js` exporta `worker = setupWorker(...handlers)`. Se usan estos nombres
+  por convención de MSW (excepción de la constitución IV).
+- **Rationale**: es la estructura que documenta MSW; separa la definición de los endpoints del
+  arranque del worker.
+
+## R23. Listado solo por REST
+
+- **Decision**: se elimina `Query.destinos` del esquema y la constante `DESTINOS` de
+  `graphql/destinos.js`. `PaginaInicio` usa `obtenerJSON('api/destinos')`.
+- **Rationale**: una sola fuente por dato evita respuestas divergentes.
+
+## R24. Cliente HTTP con cancelación
+
+- **Decision**: `lib/api.js` define `solicitar(ruta, opciones)`, que agrega
+  `import.meta.env.BASE_URL` y traduce los errores. Exporta
+  `consultar(query, variables, { signal })` para GraphQL y `obtenerJSON(ruta, { signal })` para
+  REST. Si la petición se cancela, relanza el error original (`name === 'AbortError'`) para que el
+  hook lo ignore; todos los demás errores siguen traduciéndose a mensajes amigables.
+- **Rationale**: un único punto de traducción de errores para REST y GraphQL (FR-024).
+
+## R25. Hook useConsulta
+
+- **Decision**: `lib/useConsulta.js` exporta `useConsulta(cargar, dependencias)`:
+  - `cargar(signal)` devuelve una promesa con los datos.
+  - El hook devuelve `{ cargando, error, datos, setDatos, reintentar }`.
+  - En cada ejecución crea un `AbortController`; la limpieza del `useEffect` llama a `abort()`.
+    Los errores `AbortError` no cambian el estado (FR-039).
+  Reemplaza el patrón `estado`/`intento`/`useEffect` de las cuatro páginas.
+- **Rationale**: elimina código repetido (constitución IV). Solo usa `useState` y `useEffect`
+  (constitución II).
+
+## R26. Fechas y disponibilidad (D2-B)
+
+- **Decision**:
+  - `Vuelo` agrega `fechaIda`, `fechaVuelta` (ISO) y `cupos` (Int).
+  - `Hotel` agrega `disponibleDesde`, `disponibleHasta` (ISO) y `habitacionesDisponibles` (Int).
+  - Son solo de lectura e informativos (FR-035).
+  - En `SelectorServicios`, al **seleccionar** un vuelo, también se asignan
+    `fechaSalida = vuelo.fechaIda` y `fechaRegreso = vuelo.fechaVuelta`. Al quitarlo, las fechas
+    se conservan (FR-034).
+- **Rationale**: es el comportamiento de D2-B con el menor código posible.
+
+## R27. Ruta 404 y enlace activo
+
+- **Decision**: `pages/PaginaNoEncontrada.jsx` se monta con `<Route path="*">`. `BarraNavegacion`
+  usa `NavLink` con `className={({ isActive }) => ...}` para "Mis reservas".
+- **Rationale**: son las herramientas nativas de React Router (FR-036, FR-037).
+
+## R28. Accesibilidad básica
+
+- **Decision**:
+  - Los textos de carga (`<p>Cargando…</p>`) llevan `role="status"`.
+  - `MensajeError` y la lista de errores de `FormularioReserva` llevan `role="alert"`.
+- **Rationale**: cumple FR-038 sin componentes nuevos.
+
+## R29. Base configurable
+
+- **Decision**: `vite.config.js` usa `base: process.env.VITE_BASE_PATH || '/'`. En local la app
+  vive en `/`; el workflow compila con `VITE_BASE_PATH=/viajex/`. `BrowserRouter` usa
+  `basename={import.meta.env.BASE_URL}`, y las URL de `fetch` y del service worker también usan
+  `BASE_URL`. El build sigue copiando `index.html` a `404.html` (R18).
+- **Rationale**: el mismo código sirve en local y en Pages sin rutas fijas.
+
+## R30. Publicación con GitHub Actions hacia gh-pages
+
+- **Decision**: crear `.github/workflows/publicar.yml`.
+  - **Disparadores**: `push` a `main` y `workflow_dispatch`.
+  - **Permisos**: `contents: write`.
+  - **Pasos**:
+    1. `actions/checkout@v4` y `actions/setup-node@v4` (Node 20, caché de npm de
+       `client/package-lock.json`).
+    2. `npm ci --prefix client` y `npm test --prefix client`.
+    3. Compilar con `VITE_BASE_PATH=/${{ github.event.repository.name }}/`.
+    4. En `client/dist`, crear un repositorio git en la rama `gh-pages`, hacer commit con el mensaje
+       `deploy: <sha de main>` y subirlo con `git push --force` a `origin gh-pages`, usando
+       `GITHUB_TOKEN`.
+  - **Configuración única**: Pages se activa con origen "Deploy from a branch: `gh-pages` / root".
+- **Rationale**: cumple la decisión del autor (Actions compila y sube a `gh-pages`) sin paquetes
+  npm ni acciones de terceros. Cada publicación nombra el commit de `main` que la originó.
+- **Alternatives considered**: `actions/deploy-pages` con artefacto (no usa la rama `gh-pages`);
+  `peaceiris/actions-gh-pages` (acción de terceros innecesaria).
+
+## R31. Responsividad
+
+- **Decision**: revisar con capturas a 375, 768 y 1280 px la barra, el selector de servicios y el
+  formulario. Corregir solo con clases de Tailwind; por ejemplo, `flex-wrap` en la barra y
+  apilado del total y el botón en móvil.
+- **Rationale**: cumple FR-040 sin cambiar componentes.
+
+## R32. Pruebas en navegadores
+
+- **Decision**: Chrome y Firefox, más la vista móvil emulada, se recorren de forma automatizada
+  con un script de apoyo **fuera del proyecto** (no agrega dependencias). Edge y Safari los prueba
+  el autor. Los resultados se registran en la matriz del README (FR-041, FR-042).
+- **Rationale**: la constitución prohíbe pruebas E2E dentro del proyecto; esta verificación es
+  manual o externa y solo deja el registro.
