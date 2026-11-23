@@ -363,13 +363,13 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T052 Revisar `client/src` y `server/src` contra la constitución IV:
+- [X] T052 Revisar `client/src` y `server/src` contra la constitución IV:
   - identificadores en español;
   - comentarios en español de 100 caracteres como máximo;
   - sin código repetido entre `PaginaDestino` y `PaginaReserva` (ambas usan `SelectorServicios` y
     `FormularioReserva`);
   - ningún mensaje visible con texto técnico (FR-024, SC-005).
-- [ ] T053 Ejecutar `npm test` en la raíz y confirmar que pasan todas las pruebas de FR-030.
+- [X] T053 Ejecutar `npm test` en la raíz y confirmar que pasan todas las pruebas de FR-030.
 - [ ] T054 Recorrer los escenarios 1–17 de `quickstart.md` y registrar cualquier fallo.
 
 ---
