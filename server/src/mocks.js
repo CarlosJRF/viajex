@@ -208,11 +208,20 @@ const camposEditables = (store, { vueloId, hotelId, tourIds, pasajeros, fechaSal
   total,
 })
 
+// Reserva del usuario o null si no existe o pertenece a otro
+const reservaDe = (store, id, usuarioId) =>
+  store.has('Reserva', id) && store.get('Reserva', id, 'usuarioId') === usuarioId
+    ? store.get('Reserva', id)
+    : null
+
 // Resolvers que leen y escriben en el store; se usa has() porque get() inventa datos
 export const crearResolvers = (store) => ({
   Query: {
     destinos: () => store.get('Query', 'ROOT', 'destinos'),
     destino: (_, { id }) => (store.has('Destino', id) ? store.get('Destino', id) : null),
+    reservas: (_, { usuarioId }) =>
+      store.get('Query', 'ROOT', 'reservas').filter((ref) => store.get(ref, 'usuarioId') === usuarioId),
+    reserva: (_, { id, usuarioId }) => reservaDe(store, id, usuarioId),
   },
   Mutation: {
     // Devuelve el usuario sin la contraseña, o null si las credenciales no coinciden

@@ -270,28 +270,28 @@ volver a ingresar y verificar que sigue ahí (quickstart 7, 11, 12, 17).
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] En `server/src/mocks.js`, agregar:
+- [X] T038 [US3] En `server/src/mocks.js`, agregar:
   - `Query.reservas(usuarioId)`: filtra `Query.ROOT.reservas` por
     `store.get(ref, 'usuarioId') === usuarioId`.
   - `Query.reserva(id, usuarioId)`: devuelve `null` si `!store.has('Reserva', id)` o si la reserva
     pertenece a otro usuario.
-- [ ] T039 [US3] En `client/src/graphql/reservas.js`, agregar `RESERVAS`:
+- [X] T039 [US3] En `client/src/graphql/reservas.js`, agregar `RESERVAS`:
   `reservas(usuarioId: $usuarioId) { id pasajeros fechaSalida fechaRegreso total destino { id nombre } vuelo { aerolinea } hotel { nombre } tours { id nombre } }`.
-- [ ] T040 [P] [US3] Crear `client/src/components/RutaProtegida.jsx` con props `usuario` y
+- [X] T040 [P] [US3] Crear `client/src/components/RutaProtegida.jsx` con props `usuario` y
   `children`. Sin `usuario`, devuelve
   `<Navigate to="/login" replace state={{ desde: location.pathname }} />`.
-- [ ] T041 [P] [US3] Crear `client/src/components/TarjetaReserva.jsx`:
+- [X] T041 [P] [US3] Crear `client/src/components/TarjetaReserva.jsx`:
   - Muestra destino, `formatearFecha` de salida y regreso, pasajeros, ítems incluidos (aerolínea,
     hotel y tours) y `formatearCLP(total)`.
   - Enlace "Ver / modificar" a `/reservas/:id`.
   - Prop opcional `alEliminar`: si existe, muestra el botón "Eliminar".
-- [ ] T042 [US3] Crear `client/src/pages/PaginaReservas.jsx`:
+- [X] T042 [US3] Crear `client/src/pages/PaginaReservas.jsx`:
   - Prop `usuario`; consulta `RESERVAS` con `usuario.id`.
   - Muestra la lista de `TarjetaReserva`.
   - Sin reservas, muestra "Aún no tienes reservas. ¡Explora destinos para planificar tu viaje!"
     con un enlace a `/`.
   - Si hay error, muestra `MensajeError` con reintentar.
-- [ ] T043 [US3] En `client/src/App.jsx`, agregar la ruta `/reservas` → `PaginaReservas`,
+- [X] T043 [US3] En `client/src/App.jsx`, agregar la ruta `/reservas` → `PaginaReservas`,
   envuelta en `RutaProtegida`.
 
 **Checkpoint**: quickstart 7, 11, 12 y 17 pasan.
