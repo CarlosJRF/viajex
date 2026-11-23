@@ -208,11 +208,11 @@ const camposEditables = (store, { vueloId, hotelId, tourIds, pasajeros, fechaSal
   total,
 })
 
-// Reserva del usuario o null si no existe o pertenece a otro
+// Reserva vigente del usuario, o null si no existe, fue eliminada o pertenece a otro
 const reservaDe = (store, id, usuarioId) =>
-  store.has('Reserva', id) && store.get('Reserva', id, 'usuarioId') === usuarioId
-    ? store.get('Reserva', id)
-    : null
+  store.get('Query', 'ROOT', 'reservas').find(
+    (ref) => ref.$ref.key === id && store.get(ref, 'usuarioId') === usuarioId,
+  ) ?? null
 
 // Resolvers que leen y escriben en el store; se usa has() porque get() inventa datos
 export const crearResolvers = (store) => ({
@@ -243,6 +243,22 @@ export const crearResolvers = (store) => ({
       const reserva = store.get('Reserva', id)
       store.set('Query', 'ROOT', 'reservas', [...store.get('Query', 'ROOT', 'reservas'), reserva])
       return reserva
+    },
+    // Reemplaza los campos editables; destino y usuario no cambian
+    actualizarReserva: (_, { id, usuarioId, cambios }) => {
+      const reserva = reservaDe(store, id, usuarioId)
+      if (!reserva) throw new GraphQLError('Reserva inexistente')
+      const destinoId = store.get(reserva, 'destino').$ref.key
+      validarOpciones(store, destinoId, cambios)
+      store.set('Reserva', id, camposEditables(store, cambios))
+      return reserva
+    },
+    // Quita la reserva de la lista y devuelve su id
+    eliminarReserva: (_, { id, usuarioId }) => {
+      if (!reservaDe(store, id, usuarioId)) throw new GraphQLError('Reserva inexistente')
+      const restantes = store.get('Query', 'ROOT', 'reservas').filter((ref) => ref.$ref.key !== id)
+      store.set('Query', 'ROOT', 'reservas', restantes)
+      return id
     },
   },
 })

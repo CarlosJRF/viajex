@@ -5,6 +5,7 @@ import PaginaInicio from './pages/PaginaInicio.jsx'
 import PaginaDestino from './pages/PaginaDestino.jsx'
 import PaginaLogin from './pages/PaginaLogin.jsx'
 import PaginaReservas from './pages/PaginaReservas.jsx'
+import PaginaReserva from './pages/PaginaReserva.jsx'
 import RutaProtegida from './components/RutaProtegida.jsx'
 
 // Raíz de la app: la sesión vive solo en memoria y se pierde al recargar
@@ -30,6 +31,14 @@ export default function App() {
             element={
               <RutaProtegida usuario={usuario}>
                 <PaginaReservas usuario={usuario} />
+              </RutaProtegida>
+            }
+          />
+          <Route
+            path="/reservas/:id"
+            element={
+              <RutaProtegida usuario={usuario}>
+                <PaginaReserva usuario={usuario} />
               </RutaProtegida>
             }
           />

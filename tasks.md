@@ -308,18 +308,18 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
 
 ### Implementation for User Story 4
 
-- [ ] T044 [US4] En `server/src/mocks.js`, agregar `Mutation.actualizarReserva(id, usuarioId, cambios)`:
+- [X] T044 [US4] En `server/src/mocks.js`, agregar `Mutation.actualizarReserva(id, usuarioId, cambios)`:
   - Lanza `GraphQLError` si la reserva no existe o es de otro usuario.
   - Valida que el vuelo, el hotel y los tours pertenezcan al destino de la reserva.
   - Reemplaza con `store.set('Reserva', id, {...})` `vuelo`, `hotel`, `tours`, `pasajeros`,
     `fechaSalida`, `fechaRegreso` y `total`.
   - **No** modifica `destino` ni `usuarioId`. Devuelve la reserva.
-- [ ] T045 [US4] En `client/src/graphql/reservas.js`, agregar:
+- [X] T045 [US4] En `client/src/graphql/reservas.js`, agregar:
   - `RESERVA`: `reserva(id: $id, usuarioId: $usuarioId)` con todos sus campos, `vuelo { id }`,
     `hotel { id }`, `tours { id }` y el destino completo, igual que en `DESTINO`.
   - `ACTUALIZAR_RESERVA`: `actualizarReserva(id, usuarioId, cambios)`, que devuelve los mismos
     campos que `RESERVA`.
-- [ ] T046 [US4] Crear `client/src/pages/PaginaReserva.jsx`:
+- [X] T046 [US4] Crear `client/src/pages/PaginaReserva.jsx`:
   - Prop `usuario`; consulta `RESERVA` e inicializa `seleccion` desde la reserva (`vueloId`,
     `hotelId`, `tourIds`, `pasajeros`, `fechaSalida`, `fechaRegreso`).
   - Muestra el destino como texto fijo, sin control para cambiarlo, y renderiza
@@ -327,7 +327,7 @@ guardar y verificar el nuevo total (quickstart 13 y 14).
   - Al confirmar, llama a `ACTUALIZAR_RESERVA` y muestra la reserva actualizada con su nuevo total.
   - Si la reserva no existe, muestra `MensajeError` "No encontramos esa reserva." con un enlace a
     `/reservas`.
-- [ ] T047 [US4] En `client/src/App.jsx`, agregar la ruta `/reservas/:id` → `PaginaReserva`,
+- [X] T047 [US4] En `client/src/App.jsx`, agregar la ruta `/reservas/:id` → `PaginaReserva`,
   envuelta en `RutaProtegida`.
 
 **Checkpoint**: quickstart 13 y 14 pasan.

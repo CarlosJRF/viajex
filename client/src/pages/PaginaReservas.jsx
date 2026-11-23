@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { consultar } from '../lib/api.js'
-import { RESERVAS } from '../graphql/reservas.js'
+import { ELIMINAR_RESERVA, RESERVAS } from '../graphql/reservas.js'
 import TarjetaReserva from '../components/TarjetaReserva.jsx'
 import MensajeError from '../components/MensajeError.jsx'
 
@@ -16,6 +16,17 @@ export default function PaginaReservas({ usuario }) {
       .then(({ reservas }) => setEstado({ cargando: false, error: null, reservas }))
       .catch((error) => setEstado({ cargando: false, error: error.message, reservas: [] }))
   }, [usuario.id, intento])
+
+  // Pide confirmación, elimina en el servidor y la quita de la lista
+  const eliminar = async (id) => {
+    if (!window.confirm('¿Eliminar esta reserva?')) return
+    try {
+      await consultar(ELIMINAR_RESERVA, { id, usuarioId: usuario.id })
+      setEstado((previo) => ({ ...previo, reservas: previo.reservas.filter((r) => r.id !== id) }))
+    } catch (error) {
+      setEstado((previo) => ({ ...previo, error: error.message }))
+    }
+  }
 
   if (estado.cargando) return <p>Cargando reservas…</p>
   if (estado.error) {
@@ -32,7 +43,9 @@ export default function PaginaReservas({ usuario }) {
         </p>
       ) : (
         <div className="grid gap-4">
-          {estado.reservas.map((r) => <TarjetaReserva key={r.id} reserva={r} />)}
+          {estado.reservas.map((r) => (
+            <TarjetaReserva key={r.id} reserva={r} alEliminar={() => eliminar(r.id)} />
+          ))}
         </div>
       )}
     </section>
