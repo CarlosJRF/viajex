@@ -1,4 +1,4 @@
-import { formatearCLP } from '../lib/formatos.js'
+import { formatearCLP, formatearFecha } from '../lib/formatos.js'
 
 // Hotel con categoría en estrellas; si recibe alAlternar se puede seleccionar
 export default function TarjetaHotel({ hotel, seleccionado = false, alAlternar }) {
@@ -8,6 +8,10 @@ export default function TarjetaHotel({ hotel, seleccionado = false, alAlternar }
       <p className="text-amber-500" aria-label={`${hotel.categoria} estrellas`}>
         {'★'.repeat(hotel.categoria)}
       </p>
+      <p className="text-sm text-slate-500">
+        Disponible del {formatearFecha(hotel.disponibleDesde)} al {formatearFecha(hotel.disponibleHasta)}
+      </p>
+      <p className="text-sm text-slate-500">{hotel.habitacionesDisponibles} habitaciones disponibles</p>
       <p className="mt-2 font-medium">{formatearCLP(hotel.precioNoche)} por noche</p>
     </>
   )

@@ -73,7 +73,7 @@ export default function FormularioReserva({ destino, seleccion, alCambiar, alCon
       </div>
 
       {errores.length > 0 && (
-        <ul className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <ul role="alert" className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {errores.map((mensaje) => <li key={mensaje}>{mensaje}</li>)}
         </ul>
       )}

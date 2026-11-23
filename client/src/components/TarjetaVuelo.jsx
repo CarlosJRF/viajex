@@ -1,4 +1,4 @@
-import { formatearCLP } from '../lib/formatos.js'
+import { formatearCLP, formatearFecha } from '../lib/formatos.js'
 
 // Vuelo de ida y vuelta; si recibe alAlternar se puede seleccionar
 export default function TarjetaVuelo({ vuelo, seleccionado = false, alAlternar }) {
@@ -6,6 +6,10 @@ export default function TarjetaVuelo({ vuelo, seleccionado = false, alAlternar }
     <>
       <h3 className="font-semibold">{vuelo.aerolinea}</h3>
       <p className="text-sm text-slate-500">Ida {vuelo.horarioIda} · Vuelta {vuelo.horarioVuelta}</p>
+      <p className="text-sm text-slate-500">
+        Ida {formatearFecha(vuelo.fechaIda)} · Vuelta {formatearFecha(vuelo.fechaVuelta)}
+      </p>
+      <p className="text-sm text-slate-500">{vuelo.cupos} cupos disponibles</p>
       <p className="mt-2 font-medium">{formatearCLP(vuelo.precio)} por pasajero</p>
     </>
   )

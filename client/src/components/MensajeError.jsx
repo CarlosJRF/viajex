@@ -1,7 +1,7 @@
 // Mensaje amigable con botón de reintento opcional y enlaces de apoyo
 export default function MensajeError({ mensaje, alReintentar, children }) {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+    <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
       <p>{mensaje}</p>
       <div className="mt-3 flex gap-4">
         {alReintentar && (

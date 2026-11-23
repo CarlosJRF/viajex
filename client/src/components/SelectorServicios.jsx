@@ -9,6 +9,12 @@ const alternarEnLista = (lista, id) =>
 // Elegir el mismo vuelo u hotel otra vez lo deselecciona
 const alternarUnico = (actual, id) => (actual === id ? null : id)
 
+// Al elegir un vuelo sus fechas rellenan la reserva; al quitarlo se conservan (FR-034)
+const alternarVuelo = (actual, vuelo) =>
+  actual === vuelo.id
+    ? { vueloId: null }
+    : { vueloId: vuelo.id, fechaSalida: vuelo.fechaIda, fechaRegreso: vuelo.fechaVuelta }
+
 // Sección con título y grilla de tarjetas
 const Seccion = ({ titulo, children }) => (
   <section className="mt-6">
@@ -29,7 +35,7 @@ export default function SelectorServicios({ destino, seleccion, alCambiar }) {
             key={v.id}
             vuelo={v}
             seleccionado={seleccion.vueloId === v.id}
-            alAlternar={() => cambiar({ vueloId: alternarUnico(seleccion.vueloId, v.id) })}
+            alAlternar={() => cambiar(alternarVuelo(seleccion.vueloId, v))}
           />
         ))}
       </Seccion>

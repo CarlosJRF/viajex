@@ -505,38 +505,38 @@ sin servidor; las pruebas siguen en verde.
 
 **Purpose**: FR-008, FR-010, FR-034, FR-038, FR-039
 
-- [ ] T073 Crear `client/src/lib/useConsulta.js` (R25): `useConsulta(cargar, dependencias)` devuelve
+- [X] T073 Crear `client/src/lib/useConsulta.js` (R25): `useConsulta(cargar, dependencias)` devuelve
   `{ cargando, error, datos, setDatos, reintentar }`.
   - En cada ejecución crea un `AbortController` y llama a `cargar(signal)`; la limpieza del efecto
     llama a `abort()`.
   - Ignora los errores `AbortError`.
   - Solo usa `useState` y `useEffect`.
-- [ ] T074 [US1] Reescribir `client/src/pages/PaginaInicio.jsx` con
+- [X] T074 [US1] Reescribir `client/src/pages/PaginaInicio.jsx` con
   `useConsulta((signal) => obtenerJSON('api/destinos', { signal }), [])`.
   - El texto de carga lleva `role="status"`.
   - Si hay error, muestra `MensajeError` con `alReintentar={reintentar}` (FR-008, FR-012, FR-038).
-- [ ] T075 [US1] En `client/src/pages/PaginaDestino.jsx`:
+- [X] T075 [US1] En `client/src/pages/PaginaDestino.jsx`:
   - Quitar la prop `usuario`, la redirección al login y el estado inicial desde
     `location.state`.
   - Cargar con `useConsulta((signal) => consultar(DESTINO, { id }, { signal }), [id])` y
     `role="status"` en la carga.
   - `confirmar` llama a `CREAR_RESERVA` con `{ destinoId: id, ...datos, total }` y navega a
     `/reservas` (FR-015).
-- [ ] T076 [P] [US1] En `client/src/components/TarjetaVuelo.jsx`, mostrar "Ida dd/mm/aaaa · Vuelta
+- [X] T076 [P] [US1] En `client/src/components/TarjetaVuelo.jsx`, mostrar "Ida dd/mm/aaaa · Vuelta
   dd/mm/aaaa" con `formatearFecha` y "N cupos disponibles". En
   `client/src/components/TarjetaHotel.jsx`, mostrar "Disponible del dd/mm/aaaa al dd/mm/aaaa" y
   "N habitaciones disponibles" (FR-010).
-- [ ] T077 [US2] En `client/src/components/SelectorServicios.jsx`: al **seleccionar** un vuelo,
+- [X] T077 [US2] En `client/src/components/SelectorServicios.jsx`: al **seleccionar** un vuelo,
   `cambiar({ vueloId: v.id, fechaSalida: v.fechaIda, fechaRegreso: v.fechaVuelta })`; al quitarlo,
   solo `vueloId: null`, conservando las fechas (FR-034). Sin validaciones de disponibilidad
   (FR-035).
-- [ ] T078 [US3] Reescribir la carga de `client/src/pages/PaginaReservas.jsx` con `useConsulta`, sin
+- [X] T078 [US3] Reescribir la carga de `client/src/pages/PaginaReservas.jsx` con `useConsulta`, sin
   la prop `usuario` ni `usuarioId`. Eliminar actualiza la lista con `setDatos`. La carga lleva
   `role="status"`.
-- [ ] T079 [US4] Reescribir la carga de `client/src/pages/PaginaReserva.jsx` con `useConsulta`, sin
+- [X] T079 [US4] Reescribir la carga de `client/src/pages/PaginaReserva.jsx` con `useConsulta`, sin
   la prop `usuario` ni `usuarioId`. Al guardar, actualiza la reserva con `setDatos` y reinicia la
   `seleccion`. La carga lleva `role="status"`.
-- [ ] T080 [P] Agregar `role="alert"` al contenedor de `client/src/components/MensajeError.jsx` y a
+- [X] T080 [P] Agregar `role="alert"` al contenedor de `client/src/components/MensajeError.jsx` y a
   la lista de errores de `client/src/components/FormularioReserva.jsx` (FR-038).
 
 **Checkpoint**: `npm test` en verde; ninguna página repite el patrón `estado`/`intento`/`useEffect`.
