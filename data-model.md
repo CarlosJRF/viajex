@@ -2,19 +2,16 @@
 
 **Fecha**: 2026-11-23 | **Plan**: [plan.md](plan.md) | **Contrato**: [contracts/schema.graphql](contracts/schema.graphql)
 
-Todas las entidades viven en memoria, en el store de `createMockStore`. Las del catálogo son de
-solo lectura; solo `Reserva` se crea, modifica y elimina. Los montos son enteros en CLP y las
+**Versión 2** (constitución v2.0.0): sin `Usuario`; las reservas se respaldan en `localStorage`.
+
+Todas las entidades viven en memoria, en el store de `createMockStore` que corre en el navegador.
+Las del catálogo son de solo lectura; solo `Reserva` se crea, modifica y elimina, y se respalda en
+`localStorage`. Los montos son enteros en CLP y las
 fechas son textos ISO `AAAA-MM-DD`.
 
 ## Entidades del catálogo (solo lectura)
 
-### Usuario
-| Campo | Tipo | Notas |
-|---|---|---|
-| id | ID | `u1` |
-| nombre | String | Nombre que muestra la barra de navegación |
-| correo | String | `demo@viajes.cl` |
-| contrasena | — | Solo existe en `mocks.js`; **no** se expone en el esquema |
+*`Usuario` se eliminó en v2: no hay login.*
 
 ### Pais
 | Campo | Tipo |
@@ -72,8 +69,7 @@ fechas son textos ISO `AAAA-MM-DD`.
 
 | Campo | Tipo | Obligatorio | Notas |
 |---|---|---|---|
-| id | ID | sí | Lo genera el servidor (`crypto.randomUUID()`) |
-| usuarioId | ID | sí | Dueño de la reserva |
+| id | ID | sí | Lo genera el mock (`crypto.randomUUID()` del navegador) |
 | destino | Destino | sí | **Inmutable** después de crear la reserva |
 | vuelo | Vuelo | no | Como máximo uno |
 | hotel | Hotel | no | Como máximo uno |
@@ -114,10 +110,35 @@ total  = (vuelo?.precio ?? 0) × pasajeros
 
 No hay estados como "cancelada": eliminar borra la reserva.
 
+### Respaldo en localStorage (FR-031)
+
+- **Clave**: `viajex:reservas`.
+- **Valor**: arreglo JSON de reservas planas, en el orden de creación:
+
+```json
+[
+  {
+    "id": "3f1c…",
+    "destinoId": "d4",
+    "vueloId": "v8",
+    "hotelId": null,
+    "tourIds": ["t8"],
+    "pasajeros": 2,
+    "fechaSalida": "2026-12-01",
+    "fechaRegreso": "2026-12-04",
+    "total": 2372000
+  }
+]
+```
+
+- Se escribe la lista completa después de cada `crearReserva`, `actualizarReserva` y
+  `eliminarReserva`.
+- Al crear el store, se leen las reservas guardadas y se insertan solo las que tienen destino y
+  opciones existentes en el catálogo. Si la lectura falla o el JSON es inválido, se parte con `[]`.
+
 ## Estado del cliente (useState)
 
 | Estado | Dónde vive | Contenido |
 |---|---|---|
-| `usuario` | `App.jsx` | `{ id, nombre, correo }` o `null` |
 | `seleccion` | `PaginaDestino` / `PaginaReserva` | `{ vueloId, hotelId, tourIds[], pasajeros, fechaSalida, fechaRegreso }` |
 | datos remotos | cada página | `{ cargando, error, datos }` con `useEffect` |

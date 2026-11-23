@@ -2,9 +2,12 @@
 
 **Fecha**: 2026-11-23 | **Plan**: [plan.md](plan.md) | **Spec**: [spec.md](spec.md)
 
-Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constitucion.md` v1.1.0.
+Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constitucion.md`.
 
-## R1. Versiones del stack
+> **v2 (constitución v2.0.0, spec v2)**: R14–R21 agregan las decisiones del mock en el navegador.
+> Las decisiones marcadas como *Reemplazada en v2* se conservan para la trazabilidad.
+
+## R1. Versiones del stack (ajustada en v2: ver R14)
 
 - **Decision**: Node.js 20 LTS o superior. Cliente: React 19, Vite 7, React Router 7 (paquete
   `react-router`), Tailwind CSS 4 con `@tailwindcss/vite`. Servidor: `@apollo/server` 5,
@@ -15,7 +18,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Alternatives considered**: Tailwind 3 (exige PostCSS y archivo de configuración); React
   Router 6 (sin ventaja para este alcance).
 
-## R2. Dependencias de soporte (no nombradas en la constitución)
+## R2. Dependencias de soporte (no nombradas en la constitución) — *ajustada en v2: ver R14*
 
 - **Decision**: se agregan solo las piezas que el stack exige para funcionar: `graphql` (peer de
   Apollo), `@graphql-tools/schema` (para `makeExecutableSchema`, que `addMocksToSchema` necesita),
@@ -25,7 +28,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
   funcionalidad propia.
 - **Alternatives considered**: ninguna; son dependencias obligatorias de las librerías elegidas.
 
-## R3. Store mock con datos fijos
+## R3. Store mock con datos fijos — *Reemplazada en v2 por R15 (mismo enfoque, en el navegador)*
 
 - **Decision**: `createMockStore({ schema })` en `server/src/mocks.js`. Al arrancar, el catálogo se
   carga con `store.set('Query', 'ROOT', 'destinos', [...])`. El store normaliza los objetos
@@ -37,7 +40,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Alternatives considered**: mocks aleatorios puros (datos inestables, imposibles de verificar);
   arreglos JS sin store (contradice la constitución).
 
-## R4. Reservas en el store
+## R4. Reservas en el store — *Reemplazada en v2 por R16*
 
 - **Decision**: cada reserva se guarda como entidad `Reserva` (`store.set('Reserva', id, {...})`)
   y su referencia se agrega a `Query.ROOT.reservas`. Modificar actualiza la entidad; eliminar la
@@ -45,7 +48,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Rationale**: las reservas sobreviven a recargar el front y se pierden al reiniciar el servidor
   (FR-025), sin dependencias extra.
 
-## R5. Identificar al usuario sin tokens
+## R5. Identificar al usuario sin tokens — *Reemplazada en v2: no hay usuarios*
 
 - **Decision**: `login` devuelve el `Usuario` (o `null` si las credenciales no coinciden). El
   cliente guarda ese usuario en `useState` y envía `usuarioId` como argumento en las operaciones
@@ -80,7 +83,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
   `pais`), porque GraphQL solo admite `[_A-Za-z][_0-9A-Za-z]*`.
 - **Rationale**: respeta el principio IV dentro de las reglas del lenguaje.
 
-## R9. Sesión, rutas protegidas y conservación de la selección
+## R9. Sesión, rutas protegidas y conservación de la selección — *Reemplazada en v2: sin login*
 
 - **Decision**: `usuario` vive en `useState` en `App.jsx` y se pasa por props. Un componente
   `RutaProtegida` redirige a `/login` con `state: { desde }`. Si se confirma una reserva sin
@@ -91,7 +94,7 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 - **Alternatives considered**: React Context (no lo prohíbe la constitución, pero no hace falta
   para tres niveles de props); `sessionStorage` (contradice "la sesión se pierde al recargar").
 
-## R10. Comunicación cliente-servidor
+## R10. Comunicación cliente-servidor — *Reemplazada en v2 por R17*
 
 - **Decision**: proxy de Vite `/graphql` → `http://localhost:4000/graphql`. `lib/api.js` exporta
   `consultar(query, variables)`, que hace `fetch` POST y, ante un fallo de red, una respuesta no
@@ -120,3 +123,82 @@ Decisiones técnicas tomadas para cumplir `spec.md` dentro del stack de `constit
 
 - **Decision**: `window.confirm` nativo.
 - **Rationale**: cumple el requisito sin crear un componente de diálogo (principio I).
+
+---
+
+# Decisiones v2 (constitución v2.0.0)
+
+## R14. Dependencias v2
+
+- **Decision**: se elimina el paquete `server/` y `concurrently`. En `client/` se agregan
+  `msw@^2` (nombrada en la constitución), `graphql@^16`, `@graphql-tools/mock@^9` y
+  `@graphql-tools/schema@^10`. Las demás dependencias del cliente no cambian.
+- **Rationale**: Pages solo sirve archivos estáticos; el mock tiene que viajar en el bundle.
+  `@graphql-tools/schema` sigue siendo necesario para `makeExecutableSchema`.
+- **Alternatives considered**: un servidor Node en otro hosting (requiere cuenta externa y
+  rompe la demo si el hosting se duerme).
+
+## R15. Mock GraphQL en el navegador con MSW
+
+- **Decision**: `client/src/mocks/navegador.js` crea el esquema con `makeExecutableSchema`,
+  el store con `createMockStore` y `addMocksToSchema`. Registra un `setupWorker` de MSW con
+  `graphql.operation(...)`, que ejecuta cada operación con `graphql()` de `graphql-js` y responde
+  `HttpResponse.json(resultado)`. `main.jsx` espera a `worker.start({ serviceWorker: { url:
+  `${BASE_URL}mockServiceWorker.js` }, onUnhandledRequest: 'bypass', quiet: true })` antes de
+  renderizar. El archivo `client/public/mockServiceWorker.js` se genera con
+  `npx msw init public --save`.
+- **Rationale**: el código de la app sigue haciendo `fetch` a `/graphql` sin saber que la API es
+  local (constitución II). Los handlers de MSW corren en la página, así que tienen acceso a
+  `localStorage`.
+- **Alternatives considered**: llamar a `graphql()` directo desde `api.js` (mete una librería
+  GraphQL en el código de la app, que la constitución prohíbe fuera de `mocks/`).
+
+## R16. Persistencia de reservas en localStorage
+
+- **Decision**: clave `viajex:reservas` con un arreglo JSON de reservas planas:
+  `{ id, destinoId, vueloId, hotelId, tourIds, pasajeros, fechaSalida, fechaRegreso, total }`.
+  `mocks/persistencia.js` exporta `cargarReservas()` y `guardarReservas(lista)`, ambas dentro de
+  `try/catch`: si hay un error o datos ilegibles, `cargarReservas` devuelve `[]` y `guardarReservas`
+  no hace nada (FR-031). Al crear el store se insertan las reservas guardadas cuyas opciones
+  todavía existen en el catálogo. Cada mutation guarda la lista completa.
+- **Rationale**: es la persistencia más simple que sobrevive a recargar sin servidor.
+- **Alternatives considered**: IndexedDB (más complejo para unas pocas reservas);
+  `sessionStorage` (se pierde al cerrar la pestaña).
+
+## R17. Endpoint y rutas bajo /viajex/
+
+- **Decision**: `vite.config.js` usa `base: '/viajex/'`. `api.js` llama a
+  `fetch(`${import.meta.env.BASE_URL}graphql`)` y `BrowserRouter` usa
+  `basename={import.meta.env.BASE_URL}`. Se elimina el proxy de Vite.
+- **Rationale**: GitHub Pages publica el repositorio `viajex` bajo `/viajex/`. Usar la misma base en
+  desarrollo evita diferencias entre local y publicado.
+
+## R18. Rutas internas al recargar en Pages
+
+- **Decision**: el script `build` del cliente copia `dist/index.html` a `dist/404.html`. Pages
+  sirve `404.html` para cualquier ruta desconocida, la app arranca y React Router muestra la ruta
+  pedida (FR-033). También se agrega un `client/public/.nojekyll` vacío para que Pages no procese
+  el sitio con Jekyll.
+- **Rationale**: es la solución estándar sin dependencias.
+- **Alternatives considered**: `HashRouter` (URLs con `#`, cambia todas las rutas del contrato).
+
+## R19. Publicación en la rama gh-pages
+
+- **Decision**: se compila con `npm run build` y se publica el contenido de `client/dist/` como
+  único contenido de la rama `gh-pages`, usando `git worktree` (ver `quickstart.md`). Pages se
+  configura con origen "Deploy from a branch: `gh-pages` / root".
+- **Rationale**: no agrega dependencias (por ejemplo, el paquete `gh-pages`) ni workflows de CI.
+- **Alternatives considered**: GitHub Actions (más automatizado, pero agrega infraestructura que
+  la constitución no pide).
+
+## R20. Eliminación del login
+
+- **Decision**: se eliminan `PaginaLogin.jsx`, `RutaProtegida.jsx` y `graphql/sesion.js`, el estado
+  `usuario` de `App.jsx`, el tipo `Usuario`, la mutation `login` y los argumentos `usuarioId` del
+  esquema. La barra muestra siempre "Mis reservas".
+- **Rationale**: constitución v2.0.0, § Sesión.
+
+## R21. Pruebas en v2
+
+- **Decision**: las pruebas de FR-030 no cambian (11 casos). El mock y la persistencia no se
+  prueban (constitución II).
