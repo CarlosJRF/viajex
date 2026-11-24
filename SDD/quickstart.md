@@ -29,8 +29,11 @@ npm test
 
 ```bash
 VITE_BASE_PATH=/viajex/ npm run build   # client/dist con index.html, 404.html y mockServiceWorker.js
-npm run preview                          # http://localhost:4173/viajex/
+VITE_BASE_PATH=/viajex/ npm run preview # http://localhost:4173/viajex/
 ```
+
+La vista previa debe usar la misma base que el build; sin `VITE_BASE_PATH` sirve en `/` y los
+archivos de `/viajex/assets/` responden 404.
 
 ## Publicación en GitHub Pages (R30)
 
