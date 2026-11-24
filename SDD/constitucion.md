@@ -137,10 +137,7 @@ pertenece a un Destino. Todos los datos se simulan con mocks.
 ```text
 proyecto/
 ├── package.json              # solo scripts raíz que delegan en client/
-├── constitucion.md
-├── spec.md
-├── plan.md
-├── tasks.md
+├── SDD/                      # documentos SDD: constitución, spec, plan, tasks y sus anexos
 ├── client/                   # React + Tailwind
 │   ├── package.json
 │   ├── vite.config.js
@@ -158,10 +155,13 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 
 ### Ubicación de los documentos SDD
 
-- `constitucion.md`, `spec.md`, `plan.md` y `tasks.md` DEBEN vivir en la raíz del proyecto; esa
-  es su ubicación canónica.
-- `.specify/memory/constitution.md` es un enlace simbólico a `constitucion.md`, para que Spec Kit
-  lea siempre la misma fuente.
+- `constitucion.md`, `spec.md`, `plan.md` y `tasks.md`, junto con sus anexos (`research.md`,
+  `data-model.md`, `quickstart.md`, `contracts/` y `checklists/`), DEBEN vivir en la carpeta
+  `SDD/` de la raíz del proyecto; esa es su ubicación canónica.
+- Cada documento conserva su propia rama de trazabilidad (`constitucion`, `spec`, `plan`,
+  `tasks`), con la misma ruta `SDD/` en todas las ramas.
+- `.specify/memory/constitution.md` es un enlace simbólico a `SDD/constitucion.md`, para que Spec
+  Kit lea siempre la misma fuente.
 
 ### Puertas de calidad
 
@@ -183,4 +183,4 @@ Las pruebas se ubican junto al archivo que prueban (`*.test.js`).
 - **Revisión de cumplimiento:** cada fase del flujo SDD (spec, plan, tasks, implementación) DEBE
   verificar el cumplimiento de esta constitución antes de aprobarse.
 
-**Version**: 2.1.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
+**Version**: 2.2.0 | **Ratified**: 2026-11-23 | **Last Amended**: 2026-11-23
