@@ -1,6 +1,6 @@
 # Feature Specification: Sistema de reserva de vuelos y hoteles
 
-**Feature Branch**: `spec` (directorio de la feature: raíz del proyecto, según `constitucion.md`)
+**Feature Branch**: `spec` (directorio de la feature: `SDD/`, según `constitucion.md` v2.2.0)
 
 **Constitución**: v2.1.0
 
