@@ -40,8 +40,9 @@ la que sirve GitHub Pages (Settings → Pages → Deploy from a branch → `gh-p
 ## Estructura
 
 ```text
-├── constitucion.md, spec.md, plan.md, tasks.md   # documentos SDD (cada uno con su rama)
-├── research.md, data-model.md, quickstart.md, contracts/
+├── SDD/                                          # documentos SDD, juntos para auditarlos
+│   ├── constitucion.md, spec.md, plan.md, tasks.md
+│   └── research.md, data-model.md, quickstart.md, contracts/, checklists/
 ├── .github/workflows/publicar.yml
 └── client/
     ├── public/mockServiceWorker.js               # service worker de MSW
@@ -55,8 +56,8 @@ la que sirve GitHub Pages (Settings → Pages → Deploy from a branch → `gh-p
 
 ## Trazabilidad SDD
 
-Cada documento tiene su rama y cada versión es un commit: `constitucion`, `spec`, `plan` y
-`tasks`. El código vive en `main`.
+Los documentos están en [`SDD/`](SDD/). Cada uno tiene su rama y cada versión es un commit:
+`constitucion`, `spec`, `plan` y `tasks`. El código vive en `main`.
 
 ## Capturas
 
@@ -72,7 +73,7 @@ Vista móvil (375 px):
 
 ## Navegadores probados
 
-Escenarios de [quickstart.md](quickstart.md) recorridos sobre la demo publicada.
+Escenarios de [quickstart.md](SDD/quickstart.md) recorridos sobre la demo publicada.
 
 | Navegador | Escenarios que pasan |
 |---|---|
