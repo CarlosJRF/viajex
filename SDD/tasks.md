@@ -5,7 +5,7 @@ description: "Lista de tareas para implementar el sistema de reserva de vuelos y
 
 # Tasks: Sistema de reserva de vuelos y hoteles
 
-**Input**: Documentos de diseño en la raíz: `plan.md`, `spec.md`, `research.md`, `data-model.md`,
+**Input**: Documentos de diseño en `SDD/`: `plan.md`, `spec.md`, `research.md`, `data-model.md`,
 `contracts/`, `quickstart.md`. Constitución: `constitucion.md` v1.1.0.
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/

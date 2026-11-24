@@ -2,9 +2,9 @@
 
 **Branch**: `plan` | **Date**: 2026-11-23 | **Spec**: [spec.md](spec.md)
 
-**Input**: Especificación de la feature en `spec.md` v3 (raíz), con `constitucion.md` v2.1.0
+**Input**: Especificación de la feature en `SDD/spec.md` v3, con `SDD/constitucion.md` v2.2.0
 
-**Versión del plan**: 3.0.1 (ver Historial de versiones)
+**Versión del plan**: 3.0.2 (ver Historial de versiones)
 
 **Note**: This template is filled in by the `/speckit-plan` command; its definition describes the execution workflow.
 
@@ -90,11 +90,11 @@ entidades, rutas ni dependencias fuera de lo anterior. ✅
 ### Documentation (this feature)
 
 ```text
-./                       # raíz (documentos SDD en la raíz)
-├── constitucion.md      # v2.1.0
+SDD/                     # documentos SDD (constitución v2.2.0); cada uno con su rama
+├── constitucion.md      # v2.2.0
 ├── spec.md              # v3
 ├── checklists/requirements.md
-├── plan.md              # este archivo (v3.0.0)
+├── plan.md              # este archivo (v3.0.2)
 ├── research.md          # R1–R13 (v1) + R14–R21 (v2) + R22–R32 (v3)
 ├── data-model.md        # v3: fechas y disponibilidad informativas
 ├── quickstart.md        # v3: escenarios 1–27 y publicación con Actions
@@ -159,10 +159,11 @@ client/
 Se eliminan respecto de v1: `server/` completo, `client/src/pages/PaginaLogin.jsx`,
 `client/src/components/RutaProtegida.jsx` y `client/src/graphql/sesion.js`.
 
-**Structure Decision**: es la estructura de la constitución v2.1.0 (§ Estructura de paquetes): una
+**Structure Decision**: es la estructura de la constitución v2.2.0 (§ Estructura de paquetes): una
 app web estática en `client/`, con el mock aislado en `client/src/mocks/` y el workflow en
 `.github/workflows/`. El mock se divide en seis módulos pequeños: datos, esquema, persistencia,
-resolvers, endpoints (`handlers.js`) y arranque del worker (`browser.js`).
+resolvers, endpoints (`handlers.js`) y arranque del worker (`browser.js`). Los documentos SDD viven
+en `SDD/`.
 
 ### Trazabilidad FR → archivos
 
@@ -205,3 +206,4 @@ resolvers, endpoints (`handlers.js`) y arranque del worker (`browser.js`).
 | 2.0.0 | v2.0.0 / v2 | Mock GraphQL en el navegador con MSW, sin servidor ni login, reservas en `localStorage`, base `/viajex/` y publicación en GitHub Pages (R14–R21) |
 | 3.0.0 | v2.1.0 / v3 | REST `GET /api/destinos`, `browser.js`/`handlers.js`, fechas y disponibilidad informativas, `useConsulta` con `AbortController`, 404, `NavLink`, roles de accesibilidad, responsividad, `VITE_BASE_PATH`, Actions → `gh-pages`, README y matriz de navegadores (R22–R32) |
 | 3.0.1 | v2.1.0 / v3 | `quickstart.md`: la vista previa también usa `VITE_BASE_PATH=/viajex/` (detectado en T083) |
+| 3.0.2 | v2.2.0 / v3 | Los documentos SDD y sus anexos se mueven a `SDD/`; solo cambian rutas |
