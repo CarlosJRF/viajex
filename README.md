@@ -76,8 +76,12 @@ Escenarios 1, 5, 7, 13, 16, 18 y 23 de [quickstart.md](quickstart.md) sobre la d
 
 | Navegador | Resultado | Observaciones |
 |---|---|---|
-| Chrome | Pendiente | |
-| Firefox | Pendiente | |
-| Móvil (emulación 375 px) | Pendiente | |
+| Chrome (escritorio, 1280 px) | ✅ 22/22 escenarios | Al abrir directamente una ruta interna, la consola registra un 404: GitHub Pages responde `404.html` (la app) con ese código. Es esperado |
+| Firefox (escritorio) | ⚠️ 21/22 escenarios | Todas las funciones pasan. En el escenario 25 (navegación muy rápida) Firefox registra en consola "A ServiceWorker intercepted the request and encountered an unexpected error"; la interfaz no muestra errores |
+| Móvil (emulación Chrome, 375 px) | ✅ 22/22 escenarios | Sin desplazamiento horizontal |
 | Edge | Pendiente (autor) | |
 | Safari | Pendiente (autor) | |
+
+Chrome, Firefox y la vista móvil se recorrieron de forma automatizada (Puppeteer, fuera del
+proyecto) sobre la demo publicada, el 23/11/2026. Corregido durante las pruebas: la vista previa
+local necesita `VITE_BASE_PATH` (quickstart, plan v3.0.1).

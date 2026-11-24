@@ -576,7 +576,7 @@ sin servidor; las pruebas siguen en verde.
   - estructura de carpetas;
   - capturas (guardadas en `docs/capturas/`);
   - la matriz de navegadores, vacía hasta T087 (FR-041).
-- [ ] T086 [US6] Hacer push a `main` y verificar que el workflow termine en verde. Activar Pages con
+- [X] T086 [US6] Hacer push a `main` y verificar que el workflow termine en verde. Activar Pages con
   origen `gh-pages` / root: en Settings, o con `gh api` previa confirmación del autor. Verificar el
   escenario 19 en `https://<usuario>.github.io/viajex/`.
 
@@ -584,7 +584,7 @@ sin servidor; las pruebas siguen en verde.
 
 ## Phase 16: Pruebas en navegadores (FR-042)
 
-- [ ] T087 Recorrer el escenario 27 sobre la URL publicada en Chrome, Firefox y vista móvil emulada
+- [X] T087 Recorrer el escenario 27 sobre la URL publicada en Chrome, Firefox y vista móvil emulada
   con un script de apoyo fuera del proyecto (R32). Registrar en la matriz del README el resultado
   y lo corregido. Dejar Edge y Safari como "Pendiente (autor)" hasta recibir sus resultados.
 
